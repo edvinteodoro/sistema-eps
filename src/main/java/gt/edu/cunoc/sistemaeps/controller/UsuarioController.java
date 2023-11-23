@@ -1,0 +1,72 @@
+package gt.edu.cunoc.sistemaeps.controller;
+
+import gt.edu.cunoc.sistemaeps.dto.CarreraDto;
+import gt.edu.cunoc.sistemaeps.dto.UsuarioDto;
+import gt.edu.cunoc.sistemaeps.service.CarreraService;
+import gt.edu.cunoc.sistemaeps.service.UsuarioService;
+import java.security.Principal;
+import java.util.List;
+import java.util.stream.Collectors;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+/**
+ *
+ * @author edvin
+ */
+@RestController
+@RequestMapping("/api/usuarios")
+public class UsuarioController {
+
+    private final UsuarioService usuarioService;
+    private final CarreraService carreraService;
+
+    public UsuarioController(UsuarioService usuarioService,
+            CarreraService carreraService) {
+        this.usuarioService = usuarioService;
+        this.carreraService = carreraService;
+    }
+
+    @GetMapping
+    public ResponseEntity getUsuarios(@RequestParam(required = false) String nombre,
+            @RequestParam(required = false) String registroAcademico,
+            @RequestParam(required = false) String colegiado,
+            Pageable pageable) {
+        try {
+            Page<UsuarioDto> usuarios = this.usuarioService.getAll(nombre, registroAcademico, colegiado, pageable)
+                    .map(UsuarioDto::new);
+            return ResponseEntity.ok(usuarios);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PostMapping
+    public ResponseEntity crearUsuario(@RequestBody UsuarioDto usuarioDto) {
+        try {
+            UsuarioDto usuario = new UsuarioDto(this.usuarioService.crearUsuario(usuarioDto));
+            return ResponseEntity.ok(usuario);
+        } catch (Exception e) {
+            System.out.println("error: "+e);
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/actual/carreras")
+    public ResponseEntity getCarrerasUsuario(Principal principal) {
+        try {
+            List<CarreraDto> carreras = this.carreraService.getCarrerasUsuario(principal.getName()).stream()
+                    .map(carreraUsuario -> new CarreraDto(carreraUsuario.getIdCarreraFk())).collect(Collectors.toList());
+            return ResponseEntity.ok(carreras);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+}

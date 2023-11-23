@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<persistence version="2.2" xmlns="http://xmlns.jcp.org/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://xmlns.jcp.org/xml/ns/persistence           http://xmlns.jcp.org/xml/ns/persistence/persistence_2_2.xsd">
+  <persistence-unit name="gt.edu.cunoc.sistema-eps_sistema-eps_jar_0.0.1-SNAPSHOTPU" transaction-type="RESOURCE_LOCAL">
+    <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
+    <class>gt.edu.cunoc.sistemaeps.entity.Bitacora</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.Comentario</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.ExtensionProyecto</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.Titulo</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.Constante</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.ComentarioBitacora</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.UsuarioProyecto</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.TokenConfirmacion</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.Municipio</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.CorrelativoEstudiante</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.Documento</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.ElementoProyecto</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.Proyecto</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.Departamento</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.Correlativo</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.Etapa</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.CarrerasUsuario</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.EtapaProyecto</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.Usuario</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.Rol</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.Elemento</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.RolUsuario</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.Recurso</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.Institucion</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.Persona</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.Permisos</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.Carrera</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.CambioUsuario</class>
+    <properties>
+      <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/datos_eps?zeroDateTimeBehavior=CONVERT_TO_NULL"/>
+      <property name="javax.persistence.jdbc.user" value="root"/>
+      <property name="javax.persistence.jdbc.driver" value="com.mysql.cj.jdbc.Driver"/>
+      <property name="javax.persistence.jdbc.password" value="Root.3161"/>
+    </properties>
+  </persistence-unit>
+</persistence>

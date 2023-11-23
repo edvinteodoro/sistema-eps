@@ -1,0 +1,16 @@
+package gt.edu.cunoc.sistemaeps.service;
+
+import gt.edu.cunoc.sistemaeps.entity.Carrera;
+import gt.edu.cunoc.sistemaeps.entity.CarreraUsuario;
+import java.util.List;
+
+/**
+ *
+ * @author edvin
+ */
+public interface CarreraService {
+
+    public Carrera getCarrera(Integer idCarrera) throws Exception;
+    public List<Carrera> getCarreras() throws Exception;
+    public List<CarreraUsuario> getCarrerasUsuario(String registroAcademico) throws Exception;
+}
