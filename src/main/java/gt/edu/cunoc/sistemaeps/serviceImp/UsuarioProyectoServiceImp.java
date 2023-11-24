@@ -31,7 +31,7 @@ public class UsuarioProyectoServiceImp implements UsuarioProyectoService {
         return this.usuarioProyectoRepository.save(usuarioProyecto);
     }
 
-    private Usuario getUsuarioDisponible(Integer idRol) throws Exception {
+    public Usuario getUsuarioDisponible(Integer idRol) throws Exception {
         List<Usuario> usuarios = this.usuarioProyectoRepository
                 .findUsuarios(idRol, Boolean.TRUE);
         if (usuarios.isEmpty()) {
@@ -49,7 +49,7 @@ public class UsuarioProyectoServiceImp implements UsuarioProyectoService {
         return tempUsuario;
     }
 
-    private Usuario getUsuarioDisponible(Integer idRol, Integer idCarrera) throws Exception {
+    public Usuario getUsuarioDisponible(Integer idRol, Integer idCarrera) throws Exception {
         List<Usuario> usuarios = this.usuarioProyectoRepository
                 .findUsuarios(idRol, Boolean.TRUE);
         if (usuarios.isEmpty()) {
@@ -66,6 +66,10 @@ public class UsuarioProyectoServiceImp implements UsuarioProyectoService {
                 }
             }
         }
+        if(tempUsuario==null){
+            throw new Exception("No hay usuarios disponible para asignar proyecto");
+        }
+        System.out.println("usuario: "+tempUsuario.getNombreCompleto());
         return tempUsuario;
     }
 

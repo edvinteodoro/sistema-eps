@@ -181,14 +181,12 @@ public class ProyectoServiceImp implements ProyectoService {
     
     private UsuarioProyecto asignarSecretaria(Proyecto proyecto) throws Exception {
         Usuario secretaria = this.usuarioProyectoService.getSecretariaDisponible();
-        System.out.println("no error 4");
         Rol rol = this.rolService.getRol(RolUtils.ID_ROL_SECRETARIA);
-        System.out.println("no error 5");
         return this.usuarioProyectoService.crearUsuarioProyecto(secretaria, proyecto, rol);
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void solicitarRevision(Integer idProyecto) throws Exception {
         System.out.println("no error");
         Usuario usuario = this.usuarioService.getLoggedUsuario();
@@ -245,6 +243,7 @@ public class ProyectoServiceImp implements ProyectoService {
         this.comentarioService.crearComentario(comentarioDto, etapaProyectoActiva, usuario, rol);
     }
 
+    @Override
     @Transactional
     public void aprobarProyectoSecretaria(Integer idProyecto) throws Exception {
         Usuario usuario = this.usuarioService.getLoggedUsuario();
@@ -262,7 +261,7 @@ public class ProyectoServiceImp implements ProyectoService {
     }
 
     private UsuarioProyecto asignarSupervisor(Proyecto proyecto) throws Exception {
-        Usuario supervisor = this.usuarioProyectoService.getSecretariaDisponible();
+        Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera()); 
         Rol rol = this.rolService.getRol(RolUtils.ID_ROL_SUPERVISOR);
         return this.usuarioProyectoService.crearUsuarioProyecto(supervisor, proyecto, rol);
     }
@@ -279,10 +278,11 @@ public class ProyectoServiceImp implements ProyectoService {
         if (!etapaProyectoActiva.getIdEtapaFk().getIdEtapa().equals(EtapaUtils.ID_ETAPA_REVISION_SUPERVISOR)) {
             throw new Exception("No se puede aprobar proyecto en esta etapa del proyecto");
         }
-        crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_PROGRAMACION_PRESENTACION_ANTEPROYECTO);
         asignarAsesor(proyecto, asesorDto);
+        crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_PROGRAMACION_PRESENTACION_ANTEPROYECTO);
     }
 
+    @Transactional
     private UsuarioProyecto asignarAsesor(Proyecto proyecto, UsuarioDto asesorDto) throws Exception {
         Usuario asesor = this.usuarioService.getUsuario(asesorDto.getIdUsuario());
         Rol rol = this.rolService.getRol(RolUtils.ID_ROL_ASESOR);

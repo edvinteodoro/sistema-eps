@@ -16,6 +16,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -207,7 +208,7 @@ public class ProyectoController {
             return ResponseEntity.ok(null);
         } catch (Exception e) {
             System.out.println("error: "+e.getMessage());
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
     
@@ -219,7 +220,32 @@ public class ProyectoController {
             return ResponseEntity.ok(null);
         } catch (Exception e) {
             System.out.println("error: "+e.getMessage());
-            return ResponseEntity.internalServerError().body(e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+    
+    
+    
+    @PostMapping("/{idProyecto}/aprobar-cambios-secretaria")
+    public ResponseEntity aprobarCambiosSecretaria(@PathVariable Integer idProyecto){
+        try {
+            this.proyectoService.aprobarProyectoSecretaria(idProyecto); 
+            return ResponseEntity.ok(null);
+        } catch (Exception e) {
+            System.out.println("error: "+e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+        }
+    }
+    
+    @PostMapping("/{idProyecto}/aprobar-cambios-supervisor")
+    public ResponseEntity aprobarCambiosSupervisor(@PathVariable Integer idProyecto,
+            @RequestBody UsuarioDto usuarioDto){
+        try {
+            this.proyectoService.aprobarProyectoSupervisor(idProyecto, usuarioDto); 
+            return ResponseEntity.ok(null);
+        } catch (Exception e) {
+            System.out.println("error: "+e);
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
         }
     }
 }
