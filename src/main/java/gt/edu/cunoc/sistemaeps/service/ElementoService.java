@@ -32,4 +32,6 @@ public interface ElementoService {
     
     public ElementoProyecto getElementoProyectoActivo(Integer idProyecto, Integer idElemento) throws Exception;
     
+    public void desactivarElementoProyectoActivo(Integer idElementoProyecto) throws Exception;
+    
 }

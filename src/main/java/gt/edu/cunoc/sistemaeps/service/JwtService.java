@@ -16,4 +16,5 @@ public interface JwtService {
     public String generateToken(String userName,Collection<? extends GrantedAuthority> authorities);
     public String extractUsername(String token);
     public Boolean validateToken(String token, UserDetails userDetails);
+    public Collection<? extends GrantedAuthority> extractRoles(String token);
 }

@@ -16,4 +16,9 @@ public interface CarreraUsuarioRepository extends JpaRepository<CarreraUsuario, 
     @Query("SELECT cu FROM CarreraUsuario cu "
             + "WHERE cu.idUsuarioFk.registroAcademico = :registroAcademico")
     public List<CarreraUsuario> findCarrerasUsuario(String registroAcademico);
+    
+    
+    @Query("SELECT cu FROM CarreraUsuario cu "
+            + "WHERE cu.idUsuarioFk.idUsuario = :idUsuario")
+    public List<CarreraUsuario> findCarrerasUsuario(Integer idUsuario);
 }

@@ -1,5 +1,7 @@
 package gt.edu.cunoc.sistemaeps.entity;
 
+import gt.edu.cunoc.sistemaeps.dto.ComentarioBitacoraDto;
+import gt.edu.cunoc.sistemaeps.util.DateUtils;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,8 +13,10 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import java.util.Date;
+import java.time.LocalDate;
+import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  *
@@ -21,6 +25,8 @@ import lombok.Data;
 @Entity
 @Table(name = "comentario_bitacora")
 @Data
+@NoArgsConstructor
+@AllArgsConstructor
 public class ComentarioBitacora{
 
     @Id
@@ -34,7 +40,7 @@ public class ComentarioBitacora{
     @Basic(optional = false)
     @Column(name = "fecha")
     @Temporal(TemporalType.DATE)
-    private Date fecha;
+    private LocalDate fecha;
     @JoinColumn(name = "id_bitacora_fk", referencedColumnName = "id_bitacora")
     @ManyToOne(optional = false)
     private Bitacora idBitacoraFk;
@@ -44,4 +50,9 @@ public class ComentarioBitacora{
     @JoinColumn(name = "id_usuario_fk", referencedColumnName = "id_usuario")
     @ManyToOne(optional = false)
     private Usuario idUsuarioFk;
+    
+    public ComentarioBitacora(ComentarioBitacoraDto comentarioBitacoraDto){
+        this.comentario = comentarioBitacoraDto.getComentario();
+        this.fecha = DateUtils.getCurrentDate();
+    }
 }

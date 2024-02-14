@@ -11,13 +11,17 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 public class EtapaDto {
+
     private Integer idEtapa;
     private String nombre;
+    private RolDto rol;
 
     public EtapaDto(Etapa etapa) {
         this.idEtapa = etapa.getIdEtapa();
         this.nombre = etapa.getNombre();
+        if (etapa.getIdRolFk() != null) {
+            this.rol = new RolDto(etapa.getIdRolFk());
+        }
     }
-    
-    
+
 }

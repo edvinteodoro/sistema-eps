@@ -22,21 +22,22 @@ import org.springframework.web.cors.CorsConfiguration;
  * @author edvin
  */
 @Configuration
-//@EnableWebSecurity
-@EnableMethodSecurity
+@EnableMethodSecurity(prePostEnabled = true)
 public class SecurityConfig {
-    
+
     private final JwtAuthFilter authFilter;
     private final UserDetailsService userDetailsService;
+    private final AuthEntryPointJwt unauthorizedHandler;
 
     public SecurityConfig(JwtAuthFilter authFilter,
-            UserDetailsService userDetailsService) {
+            UserDetailsService userDetailsService, AuthEntryPointJwt unauthorizedHandler) {
         this.authFilter = authFilter;
         this.userDetailsService = userDetailsService;
+        this.unauthorizedHandler = unauthorizedHandler;
     }
-    
+
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception { 
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.cors(cors -> cors.configurationSource(request -> {
             CorsConfiguration config = new CorsConfiguration();
             config.setAllowedOrigins(Arrays.asList("http://localhost:4200", "http://localhost:8080"));
@@ -46,8 +47,11 @@ public class SecurityConfig {
             config.setAllowCredentials(true);
             config.setMaxAge(3600L);
             return config;
-        })) 
+        }))
                 .csrf(AbstractHttpConfigurer::disable)
+                .exceptionHandling(customizers -> {
+                    customizers.authenticationEntryPoint(unauthorizedHandler);
+                })
                 .authorizeHttpRequests(auth -> auth
                 .requestMatchers("/api/auth/**").permitAll() // Allow unauthenticated access to the login endpoint
                 .anyRequest().authenticated()) // Require authentication for all other paths
@@ -55,15 +59,15 @@ public class SecurityConfig {
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
                 .userDetailsService(userDetailsService)
                 .build();
-    } 
-  
+    }
+
     @Bean
-    public PasswordEncoder passwordEncoder() { 
-        return new BCryptPasswordEncoder(); 
-    } 
-  
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
     @Bean
-    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception { 
-        return config.getAuthenticationManager(); 
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration config) throws Exception {
+        return config.getAuthenticationManager();
     }
 }

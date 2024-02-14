@@ -1,5 +1,6 @@
 package gt.edu.cunoc.sistemaeps.dto;
 
+import com.fasterxml.jackson.annotation.JsonFormat;
 import gt.edu.cunoc.sistemaeps.entity.Comentario;
 import java.time.LocalDate;
 import lombok.Data;
@@ -15,6 +16,7 @@ public class ComentarioDto {
     private Integer idComentario;
     private UsuarioDto usuario;
     private String comentario;
+    @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate fecha;
     private RolDto rol;
     

@@ -64,7 +64,7 @@ public class ElementoServiceImp implements ElementoService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public ElementoProyecto crearElementoProyecto(Integer idProyecto, Integer idElemento,
             ElementoProyectoDto elementoProyectoDto) throws Exception {
         Usuario usuario = this.usuarioService.getLoggedUsuario();
@@ -90,9 +90,24 @@ public class ElementoServiceImp implements ElementoService {
             saveElementoProyecto(elementoProyectoActivo);
         }
     }
+    
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void desactivarElementoProyectoActivo(Integer idElementoProyecto) throws Exception {
+        Usuario usuario = this.usuarioService.getLoggedUsuario();
+        ElementoProyecto elementoProyectoActivo = this.elementoProyectoRepository.findById(idElementoProyecto).get();
+        Proyecto proyecto = elementoProyectoActivo.getIdEtapaProyectoFk().getIdProyectoFk();
+        if (!proyecto.getIdUsuarioFk().equals(usuario)) {
+            throw new Exception("no tiene permiso para desactivar elemento");
+        }
+        elementoProyectoActivo.setActivo(Boolean.FALSE);
+        saveElementoProyecto(elementoProyectoActivo);
+    }
 
     public ElementoProyecto crearElementoProyecto(Proyecto proyecto, Elemento elemento,
             EtapaProyecto etapaProyecto, MultipartFile file) throws Exception {
+        System.out.println("elemento id: "+elemento.getIdEtapaFk().getIdEtapa());
+        System.out.println("etapa proyecto: "+etapaProyecto.getIdEtapaFk().getIdEtapa());
         if (!elemento.getIdEtapaFk().equals(etapaProyecto.getIdEtapaFk())) {
             throw new Exception("No se puede crear elemento");
         }

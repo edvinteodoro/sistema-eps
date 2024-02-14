@@ -10,6 +10,8 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.io.Decoders;
 import io.jsonwebtoken.security.Keys;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import java.security.Key;
 import java.util.Collection;
 import java.util.Date;
@@ -19,10 +21,12 @@ import java.util.Map;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.ResponseCookie;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
+import org.springframework.web.util.WebUtils;
 
 /**
  *
@@ -95,9 +99,23 @@ public class JwtServiceImp implements JwtService {
         return (username.equals(userDetails.getUsername()) && !isTokenExpired(token) && roles.equals(userDetails.getAuthorities()));
     }
 
-    private Collection<? extends GrantedAuthority> extractRoles(String token) {
+    public Collection<? extends GrantedAuthority> extractRoles(String token) {
         Claims claims = extractAllClaims(token);
         List<String> roles = claims.get("authorities", List.class);
         return roles.stream().map(SimpleGrantedAuthority::new).collect(Collectors.toList());
     }
+    
+    private ResponseCookie generateCookie(String name, String value, String path) {
+    ResponseCookie cookie = ResponseCookie.from(name, value).path(path).maxAge(24 * 60 * 60).httpOnly(true).build();
+    return cookie;
+  }
+  
+  private String getCookieValueByName(HttpServletRequest request, String name) {
+    Cookie cookie = WebUtils.getCookie(request, name);
+    if (cookie != null) {
+      return cookie.getValue();
+    } else {
+      return null;
+    }
+  }
 }

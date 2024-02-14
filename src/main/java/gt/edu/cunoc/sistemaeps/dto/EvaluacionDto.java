@@ -14,12 +14,11 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class EvaluacionDto {
     private LocalDate fecha;
-    private String dia;
     private LocalTime hora;
-    private String representante;
     private TituloDto tituloRepresentante;
-    private Integer nota;
-    private String resultado; 
-    private String comentario;
+    private String representante;
     private String salon;
+    private String comentario;
+    private String dia;
+    
 }

@@ -63,7 +63,7 @@ public class ComentarioServiceImp implements ComentarioService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Comentario crearComentario(Integer idProyecto, ComentarioDto comentarioDto) throws Exception {
         EtapaProyecto etapaActiva = this.etapaService.getEtapaProyectoActivo(idProyecto);
         Usuario usuario = this.usuarioService.getLoggedUsuario();
@@ -104,7 +104,8 @@ public class ComentarioServiceImp implements ComentarioService {
                 }
                 return crearComentario(comentarioDto, etapaActiva, usuario, rol);
             }
-            default -> throw new Exception("No tiene permisos para comentar proyecto");
+            default ->
+                throw new Exception("No tiene permisos para comentar proyecto");
         }
     }
 

@@ -77,6 +77,6 @@ public class Persona {
         this.dpi = usuarioDto.getDpi();
         this.direccion = usuarioDto.getDireccion();
         this.puesto = usuarioDto.getPuesto();
-        this.rol = usuarioDto.getRol().getTitulo();
+        //this.rol = usuarioDto.getRol().getTitulo();
     }
 }

@@ -38,5 +38,10 @@ public class CarreraServiceImp implements CarreraService {
     public List<CarreraUsuario> getCarrerasUsuario(String registroAcademico) throws Exception {
         return this.carreraUsuarioRepository.findCarrerasUsuario(registroAcademico); 
     }
+    
+    @Override
+    public List<CarreraUsuario> getCarrerasUsuario(Integer idUsuario) throws Exception{
+        return this.carreraUsuarioRepository.findCarrerasUsuario(idUsuario);
+    }
 
 }

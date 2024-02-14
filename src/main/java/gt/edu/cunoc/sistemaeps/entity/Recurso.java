@@ -1,5 +1,7 @@
 package gt.edu.cunoc.sistemaeps.entity;
 
+import gt.edu.cunoc.sistemaeps.dto.RecursoDto;
+import gt.edu.cunoc.sistemaeps.util.DateUtils;
 import jakarta.persistence.Basic;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -11,8 +13,9 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import jakarta.persistence.Temporal;
 import jakarta.persistence.TemporalType;
-import java.util.Date;
+import java.time.LocalDate;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 /**
  *
@@ -21,6 +24,7 @@ import lombok.Data;
 @Entity
 @Table(name = "recurso")
 @Data
+@NoArgsConstructor
 public class Recurso {
 
     @Id
@@ -39,8 +43,13 @@ public class Recurso {
     @Basic(optional = false)
     @Column(name = "fecha")
     @Temporal(TemporalType.DATE)
-    private Date fecha;
+    private LocalDate fecha;
     @JoinColumn(name = "id_bitacora_fk", referencedColumnName = "id_bitacora")
     @ManyToOne(optional = false)
     private Bitacora idBitacoraFk;
+    
+    public Recurso(RecursoDto recursoDto){
+        this.fecha=DateUtils.getCurrentDate();
+        this.tipoRecurso = recursoDto.getTipoRecurso();
+    }
 }

@@ -71,9 +71,23 @@ public class UsuarioServiceImp implements UsuarioService {
 
     @Override
     public Page<Usuario> getAll(String nombre, String registroAcademico,
-            String numeroColegiado, Pageable pageable) throws Exception {
-        Specification<Usuario> spec = UsuarioSpecification.filterBy(nombre, registroAcademico, numeroColegiado);
+            String numeroColegiado,String dpi, Integer idRol, Pageable pageable) throws Exception {
+        Specification<Usuario> spec = UsuarioSpecification.filterBy(nombre, registroAcademico, numeroColegiado,dpi, idRol);
         return this.usuarioRepository.findAll(spec, pageable);
+    }
+    
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Usuario actualizarUsuario(Integer idUsuario, UsuarioDto usuarioDto) throws Exception{
+        Usuario usuario = this.usuarioRepository.findById(idUsuario).get();
+        usuario.setNombreCompleto(usuarioDto.getNombreCompleto());
+        usuario.setCorreo(usuarioDto.getCorreo());
+        usuario.setDireccion(usuarioDto.getDireccion());
+        usuario.setDpi(usuarioDto.getDpi()); 
+        usuario.setTelefono(usuarioDto.getTelefono());
+        usuario.setNumeroColegiado(usuarioDto.getNumeroColegiado()); 
+        List<RolUsuario> rolesUsuario = this.rolService.getRolUsuario(idUsuario);
+        return this.usuarioRepository.save(usuario);
     }
 
     @Override
@@ -89,12 +103,14 @@ public class UsuarioServiceImp implements UsuarioService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public Usuario crearUsuario(UsuarioDto usuarioDto) throws Exception {
         Usuario usuario = new Usuario(usuarioDto);
         Titulo titulo = this.tituloService.getTitulo(usuarioDto.getTitulo().getIdTitulo());
         usuario.setIdTituloFk(titulo);
-        usuario.setCarreraUsuarioList(asignarCarrera(usuario, usuarioDto.getCarreras()));
+        if (usuarioDto.getCarreras() != null && !usuarioDto.getCarreras().isEmpty()) {
+            usuario.setCarreraUsuarioList(asignarCarrera(usuario, usuarioDto.getCarreras()));
+        }
         usuario.setRolUsuarioList(asignarRol(usuario, usuarioDto.getRol()));
         usuario = save(usuario);
         TokenConfirmacion token = this.tokenConfirmacionService.crearTockenConfirmacion(usuario);
@@ -103,8 +119,9 @@ public class UsuarioServiceImp implements UsuarioService {
     }
 
     @Override
-    @Transactional
+    @Transactional(rollbackFor = Exception.class)
     public void activarUsuario(TokenConfirmacionDto tokenConfirmacionDto) throws Exception {
+        System.out.println("token: " + tokenConfirmacionDto.getToken());
         TokenConfirmacion tokenConfirmacion = this.tokenConfirmacionService
                 .getTokenConfiramcion(tokenConfirmacionDto.getToken());
         Usuario usuario = tokenConfirmacion.getIdUsuarioFk();

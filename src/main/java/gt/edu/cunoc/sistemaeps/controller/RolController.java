@@ -6,6 +6,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -16,18 +17,29 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/roles")
 public class RolController {
+
     private final RolService rolService;
 
     public RolController(RolService rolService) {
         this.rolService = rolService;
     }
-    
+
     @GetMapping
-    public ResponseEntity getRoles(){
+    public ResponseEntity getRoles() {
         try {
-            List<RolDto> roles=this.rolService.getAll().stream()
+            List<RolDto> roles = this.rolService.getAll().stream()
                     .map(RolDto::new).collect(Collectors.toList());
             return ResponseEntity.ok(roles);
+        } catch (Exception e) {
+            return ResponseEntity.ok(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{idRol}")
+    public ResponseEntity getRol(@PathVariable Integer idRol) {
+        try {
+            RolDto rol = new RolDto(this.rolService.getRol(idRol));
+            return ResponseEntity.ok(rol);        
         } catch (Exception e) {
             return ResponseEntity.ok(e.getMessage());
         }

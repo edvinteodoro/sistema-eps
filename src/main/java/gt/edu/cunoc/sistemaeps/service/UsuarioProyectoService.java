@@ -24,4 +24,7 @@ public interface UsuarioProyectoService {
     public UsuarioProyecto getCoordinadoCarreraProyecto(Integer idProyecto) throws Exception;
     public UsuarioProyecto getAsesorProyecto(Integer idProyecto) throws Exception;
     public UsuarioProyecto getContraparteProyecto(Integer idProyecto) throws Exception;
+    public UsuarioProyecto actualizarSupervisorProyecto(Proyecto proyecto,Usuario supervisor) throws Exception;
+    public UsuarioProyecto actualizarAsesorProyecto(Proyecto proyecto, Usuario asesor) throws Exception;
+    public UsuarioProyecto actualizarContraparteProyecto(Proyecto proyecto, Usuario contraparte) throws Exception;
 }

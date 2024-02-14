@@ -13,6 +13,7 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface RecursoRepository extends JpaRepository<Recurso, Integer>{
     @Query("SELECT r FROM Recurso r "
-            + "WHERE r.idBitacoraFk.idBitacora = :idBitacora")
+            + "WHERE r.idBitacoraFk.idBitacora = :idBitacora "
+            + "ORDER BY r.idRecurso ASC")
     public List<Recurso> findRecursos(Integer idBitacora);
 }

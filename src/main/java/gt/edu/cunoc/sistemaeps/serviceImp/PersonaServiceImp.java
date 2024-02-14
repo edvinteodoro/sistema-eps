@@ -20,6 +20,7 @@ public class PersonaServiceImp implements PersonaService {
 
     private final PersonaRepository personaRepository;
     private final UsuarioService usuarioService;
+    private final String ROL_ASESOR_TECNICO = "ASESOR TECNICO";
 
     public PersonaServiceImp(PersonaRepository personaRepository,
             UsuarioService usuarioService) {
@@ -38,6 +39,19 @@ public class PersonaServiceImp implements PersonaService {
     @Override
     public Persona save(Persona persona) throws Exception {
         return this.personaRepository.save(persona);
+    }
+
+    @Override
+    public void eliminiarPersona(Integer idPersona) throws Exception {
+        Usuario usuario = this.usuarioService.getLoggedUsuario();
+        Persona persona = this.personaRepository.findById(idPersona).get();
+        if(!persona.getIdProyectoFk().getIdUsuarioFk().equals(usuario)){
+            throw new Exception("No tiene permisos para eliminar persona");
+        }
+        if (!persona.getRol().equals(ROL_ASESOR_TECNICO)) {
+            throw new Exception("No se puede eliminar persona");
+        }
+        this.personaRepository.delete(persona);
     }
 
     @Override

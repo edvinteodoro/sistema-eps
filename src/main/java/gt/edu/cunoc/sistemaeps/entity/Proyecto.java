@@ -18,7 +18,6 @@ import jakarta.persistence.TemporalType;
 import java.time.LocalDate;
 import java.util.List;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 
 /**
  *
@@ -34,8 +33,9 @@ public class Proyecto {
     @Basic(optional = false)
     @Column(name = "id_proyecto")
     private Integer idProyecto;
-    @Column(name = "tipo_proyecto")
-    private String tipoProyecto;
+    @Basic(optional = false)
+    @Column(name = "semestre")
+    private String semestre;
     @Basic(optional = false)
     @Column(name = "activo")
     private boolean activo;
@@ -69,6 +69,6 @@ public class Proyecto {
 
     public Proyecto() {
         this.activo = true;
-        this.fechaInicio= DateUtils.getCurrentDate();
+        this.fechaInicio = DateUtils.getCurrentDate();
     }
 }

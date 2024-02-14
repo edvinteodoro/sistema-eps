@@ -56,6 +56,18 @@ public class EtapaServiceImp implements EtapaService {
     public EtapaProyecto getEtapaProyectoActivo(Integer idProyecto) throws Exception {
         return this.etapaProyectoRepository.findEtapaProyecto(idProyecto, Boolean.TRUE);
     }
+    
+    @Override
+    public EtapaProyecto activarEtapaProyecto(EtapaProyecto etapaProyecto) throws Exception{
+        etapaProyecto.setActivo(Boolean.TRUE);
+        return saveEtapaProyecto(etapaProyecto);
+    }
+    
+    @Override
+    public EtapaProyecto desactivarEtapaProyecto(EtapaProyecto etapaProyecto) throws Exception{
+        etapaProyecto.setActivo(Boolean.FALSE);
+        return saveEtapaProyecto(etapaProyecto);
+    }
 
     @Override
     public EtapaProyecto finalizarEtapaProyecto(EtapaProyecto etapaProyecto) throws Exception {

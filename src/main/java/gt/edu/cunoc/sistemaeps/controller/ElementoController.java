@@ -4,6 +4,10 @@
  */
 package gt.edu.cunoc.sistemaeps.controller;
 
+import gt.edu.cunoc.sistemaeps.service.ElementoService;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -14,13 +18,20 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/elementos")
 public class ElementoController {
-    /*
-    public ResponseEntity crearElementoProyecto(){
+
+    private final ElementoService elementoService;
+
+    public ElementoController(ElementoService elementoService) {
+        this.elementoService = elementoService;
+    }
+
+    @PutMapping("/{idElementoProyecto}/desactivar")
+    public ResponseEntity desactivarElementoProyecto(@PathVariable Integer idElementoProyecto) {
         try {
-            
+            this.elementoService.desactivarElementoProyectoActivo(idElementoProyecto);
+            return ResponseEntity.ok(null);
         } catch (Exception e) {
-            System.out.println("error"+e.getMessage());
-            ResponseEntity.internalServerError().body(e.getMessage());
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
-    }*/
+    }
 }

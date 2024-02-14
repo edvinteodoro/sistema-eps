@@ -25,4 +25,6 @@ public interface PersonaService {
     public List<Persona> getAsesoresTecnicos(Integer idProyecto) throws Exception;
     
     public Persona actualizarPersona(Integer idProyecto, Integer idPersona,UsuarioDto usuarioDto) throws Exception;
+    
+    public void eliminiarPersona(Integer idPersona) throws Exception;
 }

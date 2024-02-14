@@ -4,11 +4,10 @@
  */
 package gt.edu.cunoc.sistemaeps.dto;
 
-import gt.edu.cunoc.sistemaeps.entity.CarreraUsuario;
 import gt.edu.cunoc.sistemaeps.entity.Persona;
 import gt.edu.cunoc.sistemaeps.entity.Usuario;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -32,6 +31,7 @@ public class UsuarioDto {
     private Boolean activo;
     private TituloDto titulo;
     private List<CarreraDto> carreras;
+    private List<RolDto> roles;
     private RolDto rol;
 
     public UsuarioDto(Usuario usuario) {
@@ -45,14 +45,13 @@ public class UsuarioDto {
         this.direccion = usuario.getDireccion();
         this.activo = usuario.isCuentaActiva();
         this.rol = new RolDto(usuario.getRolUsuarioList().get(0).getIdRolFk());
+        this.roles = usuario.getRolUsuarioList().stream().map(rolUsuario->new RolDto(rolUsuario.getIdRolFk())).toList();
         if (usuario.getIdTituloFk() != null) {
             this.titulo = new TituloDto(usuario.getIdTituloFk());
         }
-        if (usuario.getCarreraUsuarioList()!=null) {
-            this.carreras = new ArrayList<>();
-            for (CarreraUsuario carrera : usuario.getCarreraUsuarioList()) {
-                this.carreras.add(new CarreraDto(carrera.getIdCarreraFk()));
-            }
+        if (usuario.getCarreraUsuarioList() != null) {
+            this.carreras = usuario.getCarreraUsuarioList().stream()
+                    .map(carrera -> new CarreraDto(carrera.getIdCarreraFk())).toList();
         }
     }
 

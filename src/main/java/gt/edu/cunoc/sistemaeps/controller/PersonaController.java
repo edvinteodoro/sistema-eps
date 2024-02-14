@@ -7,6 +7,7 @@ package gt.edu.cunoc.sistemaeps.controller;
 import gt.edu.cunoc.sistemaeps.dto.UsuarioDto;
 import gt.edu.cunoc.sistemaeps.service.PersonaService;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -31,6 +32,16 @@ public class PersonaController {
         try {
             UsuarioDto persona = new UsuarioDto(this.personaService.getPersona(idPersona));
             return ResponseEntity.ok(persona);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @DeleteMapping("/{idPersona}")
+    public ResponseEntity eliminarPersona(@PathVariable Integer idPersona) {
+        try {
+            this.personaService.eliminiarPersona(idPersona);
+            return ResponseEntity.ok(null);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }

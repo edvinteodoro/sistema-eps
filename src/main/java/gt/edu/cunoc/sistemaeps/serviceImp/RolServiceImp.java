@@ -4,9 +4,11 @@
  */
 package gt.edu.cunoc.sistemaeps.serviceImp;
 
+import gt.edu.cunoc.sistemaeps.dto.RolDto;
 import gt.edu.cunoc.sistemaeps.repository.RolUsuarioRepository;
 import gt.edu.cunoc.sistemaeps.entity.Rol;
 import gt.edu.cunoc.sistemaeps.entity.RolUsuario;
+import gt.edu.cunoc.sistemaeps.entity.Usuario;
 import gt.edu.cunoc.sistemaeps.repository.RolRepository;
 import gt.edu.cunoc.sistemaeps.service.RolService;
 import java.util.Collection;
@@ -59,6 +61,27 @@ public class RolServiceImp implements RolService {
     }
 
     @Override
+    public void actualizarRol(Usuario usuario, List<RolDto> rolesDto) throws Exception {
+        /*List<Rol> roles = getRolesUsuario(usuario.getIdUsuario());
+        for (RolDto rolDto : rolesDto) {
+            Rol rol = getRol(rolDto.getIdRol());
+            if (!roles.contains(rol)) {
+                RolUsuario rolUsuario = new RolUsuario();
+                rolUsuario.setIdRolFk(rol);
+                rolUsuario.setIdUsuarioFk(usuario);
+                this.rolUsuarioRepository.save(rolUsuario);
+            }
+        }
+        List<Integer> idRoles = rolesDto.stream().map(rolDto -> rolDto.getIdRol()).toList();
+        for (Rol rol : roles) {
+            if(!idRoles.contains(rol.getIdRol())){
+                RolUsuario rolUsuario= this.rolUsuarioRepository.findRolUsuario(usuario.getIdUsuario(), rol.getIdRol());
+                this.rolUsuarioRepository.delete(rolUsuario);
+            }
+        }*/
+    } 
+
+    @Override
     public List<RolUsuario> getRolUsuario(Integer idUsuario) {
         return this.rolUsuarioRepository.findRolUsuario(idUsuario);
     }
@@ -66,6 +89,11 @@ public class RolServiceImp implements RolService {
     @Override
     public List<Rol> getAll() {
         return this.rolRepository.findAll();
+    }
+
+    @Override
+    public List<Rol> getRolesUsuario(Integer idUsuario) {
+        return this.rolRepository.findRolesUsuario(idUsuario);
     }
 
 }

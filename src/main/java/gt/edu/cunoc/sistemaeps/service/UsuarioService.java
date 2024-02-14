@@ -17,10 +17,17 @@ import org.springframework.data.domain.Pageable;
 public interface UsuarioService {
 
     public Page<Usuario> getAll(String nombre, String registroAcademico,
-            String colegiado, Pageable pageable) throws Exception;
+            String colegiado, String dpi, Integer idRol, Pageable pageable) throws Exception;
+
     public Usuario crearUsuario(UsuarioDto usuarioDto) throws Exception;
+
     public Usuario getUsuario(String username) throws Exception;
+
     public Usuario getUsuario(Integer idUsuario) throws Exception;
+
     public Usuario getLoggedUsuario() throws Exception;
+
     public void activarUsuario(TokenConfirmacionDto tokenConfirmacionDto) throws Exception;
+
+    public Usuario actualizarUsuario(Integer idUsuario, UsuarioDto usuarioDto) throws Exception;
 }

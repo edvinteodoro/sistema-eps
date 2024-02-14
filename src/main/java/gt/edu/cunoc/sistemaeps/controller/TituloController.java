@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -33,6 +34,16 @@ public class TituloController {
             List<TituloDto> titulos = this.tituloService.getTitulos().stream()
                     .map(TituloDto::new).collect(Collectors.toList());
             return ResponseEntity.ok(titulos);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+    
+    @GetMapping("/{idTitulo}")
+    public ResponseEntity getTitulo(@PathVariable Integer idTitulo) {
+        try {
+            TituloDto titulo = new TituloDto(this.tituloService.getTitulo(idTitulo));
+            return ResponseEntity.ok(titulo);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }

@@ -71,8 +71,6 @@ public class Usuario{
     private List<TokenConfirmacion> tokenConfirmacionList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "idUsuarioFk")
     private List<Comentario> comentarioList;
-    @OneToMany(cascade = CascadeType.ALL, mappedBy = "idEstudianteFk")
-    private List<CorrelativoEstudiante> correlativoEstudianteList;
     @JoinColumn(name = "id_titulo_fk", referencedColumnName = "id_titulo")
     @ManyToOne(optional = false)
     private Titulo idTituloFk;
@@ -81,9 +79,23 @@ public class Usuario{
         this.correo=usuarioDto.getCorreo();
         this.nombreCompleto=usuarioDto.getNombreCompleto();
         this.registroAcademico=usuarioDto.getRegistroAcademico();
+        this.numeroColegiado = usuarioDto.getNumeroColegiado();
         this.dpi=usuarioDto.getDpi();
         this.direccion=usuarioDto.getDireccion();
         this.telefono = usuarioDto.getTelefono();
         this.cuentaActiva=false;
+    }
+    
+    public String getUserName(){
+        if(this.registroAcademico!=null){
+            return this.registroAcademico;
+        }
+        if(this.numeroColegiado!=null){
+            return this.numeroColegiado;
+        }
+        if(this.dpi!=null){
+            return this.dpi;
+        }
+        return null;
     }
 }

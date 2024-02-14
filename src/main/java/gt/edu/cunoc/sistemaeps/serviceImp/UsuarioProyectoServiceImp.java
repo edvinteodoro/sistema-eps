@@ -4,11 +4,16 @@
  */
 package gt.edu.cunoc.sistemaeps.serviceImp;
 
+import gt.edu.cunoc.sistemaeps.entity.Carrera;
+import gt.edu.cunoc.sistemaeps.entity.CarreraUsuario;
 import gt.edu.cunoc.sistemaeps.entity.Proyecto;
 import gt.edu.cunoc.sistemaeps.entity.Rol;
+import gt.edu.cunoc.sistemaeps.entity.RolUsuario;
 import gt.edu.cunoc.sistemaeps.entity.Usuario;
 import gt.edu.cunoc.sistemaeps.entity.UsuarioProyecto;
 import gt.edu.cunoc.sistemaeps.repository.UsuarioProyectoRepository;
+import gt.edu.cunoc.sistemaeps.service.CarreraService;
+import gt.edu.cunoc.sistemaeps.service.RolService;
 import gt.edu.cunoc.sistemaeps.service.UsuarioProyectoService;
 import gt.edu.cunoc.sistemaeps.util.RolUtils;
 import java.util.List;
@@ -22,9 +27,14 @@ import org.springframework.stereotype.Service;
 public class UsuarioProyectoServiceImp implements UsuarioProyectoService {
 
     private final UsuarioProyectoRepository usuarioProyectoRepository;
+    private final RolService rolService;
+    private final CarreraService carreraService;
 
-    public UsuarioProyectoServiceImp(UsuarioProyectoRepository usuarioProyectoRepository) {
+    public UsuarioProyectoServiceImp(UsuarioProyectoRepository usuarioProyectoRepository, RolService rolService,
+            CarreraService carreraService) {
         this.usuarioProyectoRepository = usuarioProyectoRepository;
+        this.rolService = rolService;
+        this.carreraService = carreraService;
     }
 
     public UsuarioProyecto saveUsuarioProyecto(UsuarioProyecto usuarioProyecto) {
@@ -41,7 +51,7 @@ public class UsuarioProyectoServiceImp implements UsuarioProyectoService {
         Usuario tempUsuario = null;
         for (Usuario usuario : usuarios) {
             Integer temp = this.usuarioProyectoRepository.getCantidadProyectos(usuario.getIdUsuario(), Boolean.TRUE);
-            if (cantidad <= temp) {
+            if (cantidad > temp || tempUsuario==null) {
                 cantidad = temp;
                 tempUsuario = usuario;
             }
@@ -49,7 +59,7 @@ public class UsuarioProyectoServiceImp implements UsuarioProyectoService {
         return tempUsuario;
     }
 
-    public Usuario getUsuarioDisponible(Integer idRol, Integer idCarrera) throws Exception {
+    public Usuario getUsuarioDisponible(Integer idRol, Integer idCarrera) throws Exception {//supervisor //sistemas //pedro 1
         List<Usuario> usuarios = this.usuarioProyectoRepository
                 .findUsuarios(idRol, Boolean.TRUE);
         if (usuarios.isEmpty()) {
@@ -60,17 +70,63 @@ public class UsuarioProyectoServiceImp implements UsuarioProyectoService {
         for (Usuario usuario : usuarios) {
             if (this.usuarioProyectoRepository.findUsuarioProyecto(usuario.getIdUsuario(), idCarrera).isPresent()) {
                 Integer temp = this.usuarioProyectoRepository.getCantidadProyectos(usuario.getIdUsuario(), Boolean.TRUE);
-                if (cantidad <= temp) {
+                if (cantidad > temp || tempUsuario==null) {
                     cantidad = temp;
                     tempUsuario = usuario;
                 }
             }
         }
-        if(tempUsuario==null){
+        if (tempUsuario == null) {
             throw new Exception("No hay usuarios disponible para asignar proyecto");
         }
-        System.out.println("usuario: "+tempUsuario.getNombreCompleto());
         return tempUsuario;
+    }
+    
+    private Boolean validarRol(List<RolUsuario> rolesUsuario,Rol rol){
+        return rolesUsuario.stream().anyMatch(usuario -> usuario.getIdRolFk().equals(rol));
+    }
+    
+    private Boolean validarCarrera(List<CarreraUsuario> carrerasUsuario,Carrera carrera){
+        return carrerasUsuario.stream().anyMatch(carreraUsuario -> carreraUsuario.getIdCarreraFk().equals(carrera));
+    }
+
+    @Override
+    public UsuarioProyecto actualizarSupervisorProyecto(Proyecto proyecto, Usuario supervisor) throws Exception {
+        UsuarioProyecto supervisorProyecto = this.getSupervisorProyecto(proyecto.getIdProyecto());
+        Rol rolSupervisor = this.rolService.getRol(RolUtils.ID_ROL_SUPERVISOR);
+        if (!validarRol(this.rolService.getRolUsuario(supervisor.getIdUsuario()), rolSupervisor)) { 
+            throw new Exception("El Usuario asignado no es de tipo Supervisor");
+        }
+        if(!validarCarrera(this.carreraService.getCarrerasUsuario(supervisor.getIdUsuario()),proyecto.getIdCarreraFk())){
+                throw new Exception("El Supervisor puede ser asignado debido a que no corresponde a la carrera del proyecto");
+        }
+        supervisorProyecto.setActivo(Boolean.FALSE);
+        return crearUsuarioProyecto(supervisor, proyecto, rolSupervisor);
+    }
+    
+    @Override
+    public UsuarioProyecto actualizarAsesorProyecto(Proyecto proyecto, Usuario asesor) throws Exception {
+        UsuarioProyecto asesorProyecto = this.getAsesorProyecto(proyecto.getIdProyecto());
+        Rol rolAsesor = this.rolService.getRol(RolUtils.ID_ROL_ASESOR);
+        if (!validarRol(this.rolService.getRolUsuario(asesor.getIdUsuario()), rolAsesor)) { 
+            throw new Exception("El Usuario asignado no es de tipo Asesor");
+        }
+        if(!validarCarrera(this.carreraService.getCarrerasUsuario(asesor.getIdUsuario()),proyecto.getIdCarreraFk())){
+                throw new Exception("El Supervisor puede ser asignado debido a que no corresponde a la carrera del proyecto");
+        }
+        asesorProyecto.setActivo(Boolean.FALSE);
+        return crearUsuarioProyecto(asesor, proyecto, rolAsesor);
+    }
+    
+    @Override
+    public UsuarioProyecto actualizarContraparteProyecto(Proyecto proyecto, Usuario contraparte) throws Exception {
+        UsuarioProyecto contraparteProyecto = this.getContraparteProyecto(proyecto.getIdProyecto());
+        Rol rolContraparte = this.rolService.getRol(RolUtils.ID_ROL_CONTRAPARTE);
+        if (!validarRol(this.rolService.getRolUsuario(contraparte.getIdUsuario()), rolContraparte)) { 
+            throw new Exception("El Usuario asignado no es de tipo Asesor");
+        }
+        contraparteProyecto.setActivo(Boolean.FALSE);
+        return crearUsuarioProyecto(contraparte, proyecto, rolContraparte);
     }
 
     @Override

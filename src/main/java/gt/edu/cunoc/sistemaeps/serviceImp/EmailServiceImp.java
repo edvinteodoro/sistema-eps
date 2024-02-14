@@ -3,6 +3,9 @@ package gt.edu.cunoc.sistemaeps.serviceImp;
 import gt.edu.cunoc.sistemaeps.service.EmailService;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
+import java.net.URL;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
@@ -18,6 +21,8 @@ import org.thymeleaf.spring6.SpringTemplateEngine;
 public class EmailServiceImp implements EmailService {
 
     private final String ACTIVAR_CUENTA_TEMPLATE = "activar-cuenta";
+    private final String NOTIFICACION_TEMPLATE = "notificacion";
+    private final String DOCUMENTO_GENERADO_TEMPLATE = "documento-generado";
     private final JavaMailSender mailSender;
     private final SpringTemplateEngine templateEngine;
 
@@ -25,9 +30,41 @@ public class EmailServiceImp implements EmailService {
         this.mailSender = javaMailSender;
         this.templateEngine = templateEngine;
     }
-
-    @Async
+    
+    
     @Override
+    @Async
+    public void sendDocumentEmail(String to, String subject,String estudiante, String registro, String carrera, String fileUrl){
+        try {
+            Context context = new Context();
+            context.setVariable("titulo", subject);
+            context.setVariable("nombre_estudiante", estudiante);
+            context.setVariable("registro_academico", registro);
+            context.setVariable("carrera", carrera);
+
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+            helper.setTo(to);
+            helper.setSubject(subject);
+
+            String htmlContent = templateEngine.process(DOCUMENTO_GENERADO_TEMPLATE, context);
+            helper.setText(htmlContent, true);
+
+            // Attach file from URL
+            Resource resource = new UrlResource(new URL(fileUrl));
+            helper.addAttachment(resource.getFilename(), resource);
+
+            mailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            System.out.println("Error sending email: " + e);
+        } catch (Exception e) {
+            System.out.println("Error attaching file: " + e);
+        }
+    }
+
+    @Override
+    @Async
     public void sendConfirmationEmail(String to, String link) {
         try {
             Context context = new Context();
@@ -40,7 +77,41 @@ public class EmailServiceImp implements EmailService {
             helper.setText(htmlContent, true);
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {
-            System.out.println("error email: "+e);
+            System.out.println("error email: " + e);
+        }
+    }
+
+    public void sendNotificacion(String subject, String message, String fileUrl, String... emails) {
+        for (String email : emails) {
+            sendNotificacion(email, subject, message, fileUrl);
+        }
+    }
+
+    @Async
+    @Override
+    public void sendNotificationEmail(String to, String subject, String message, String fileUrl) {
+        try {
+            Context context = new Context();
+            context.setVariable("message", message);
+
+            MimeMessage mimeMessage = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
+
+            helper.setTo(to);
+            helper.setSubject(subject);
+
+            String htmlContent = templateEngine.process(NOTIFICACION_TEMPLATE, context);
+            helper.setText(htmlContent, true);
+
+            // Attach file from URL
+            Resource resource = new UrlResource(new URL(fileUrl));
+            helper.addAttachment(resource.getFilename(), resource);
+
+            mailSender.send(mimeMessage);
+        } catch (MessagingException e) {
+            System.out.println("Error sending email: " + e);
+        } catch (Exception e) {
+            System.out.println("Error attaching file: " + e);
         }
     }
 }

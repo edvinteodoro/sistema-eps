@@ -7,6 +7,8 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import java.util.List;
@@ -32,9 +34,12 @@ public class Etapa{
     @Basic(optional = false)
     @Column(name = "descripcion")
     private String descripcion;
-    // @Max(value=?)  @Min(value=?)//if you know range of your decimal fields consider using these annotations to enforce field validation
     @Column(name = "nota_minima_aprobacion")
     private Double notaMinimaAprobacion;
+    @JoinColumn(name = "id_rol_fk", referencedColumnName = "id_rol")
+    @ManyToOne
+    private Rol idRolFk;
+    
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "idEtapaFk")
     private List<EtapaProyecto> etapaProyectoList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "idEtapaFk")

@@ -20,4 +20,9 @@ public interface RolRepository extends JpaRepository<Rol, Integer> {
     @Query("SELECT r FROM Rol r "
             + "WHERE r.titulo = :titulo")
     public Rol findRolBytitulo(String titulo);
+    
+    @Query("SELECT r FROM Rol r "
+            + "LEFT JOIN r.rolUsuarioList ru "
+            + "WHERE ru.idUsuarioFk.idUsuario = :idUsuario")
+    public List<Rol> findRolesUsuario(Integer idUsuario);
 }

@@ -13,4 +13,5 @@ public interface CarreraService {
     public Carrera getCarrera(Integer idCarrera) throws Exception;
     public List<Carrera> getCarreras() throws Exception;
     public List<CarreraUsuario> getCarrerasUsuario(String registroAcademico) throws Exception;
+    public List<CarreraUsuario> getCarrerasUsuario(Integer idUsuario) throws Exception;
 }
