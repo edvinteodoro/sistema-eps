@@ -3,6 +3,7 @@ package gt.edu.cunoc.sistemaeps.serviceImp;
 import gt.edu.cunoc.sistemaeps.dto.BitacoraDto;
 import gt.edu.cunoc.sistemaeps.dto.RecursoDto;
 import gt.edu.cunoc.sistemaeps.entity.Bitacora;
+import gt.edu.cunoc.sistemaeps.entity.Carrera;
 import gt.edu.cunoc.sistemaeps.entity.Elemento;
 import gt.edu.cunoc.sistemaeps.entity.EtapaProyecto;
 import gt.edu.cunoc.sistemaeps.entity.Proyecto;
@@ -13,8 +14,10 @@ import gt.edu.cunoc.sistemaeps.entity.UsuarioProyecto;
 import gt.edu.cunoc.sistemaeps.repository.BitacoraRepository;
 import gt.edu.cunoc.sistemaeps.repository.RecursoRepository;
 import gt.edu.cunoc.sistemaeps.service.BitacoraService;
+import gt.edu.cunoc.sistemaeps.service.CarreraService;
 import gt.edu.cunoc.sistemaeps.service.ElementoService;
 import gt.edu.cunoc.sistemaeps.service.EtapaService;
+import gt.edu.cunoc.sistemaeps.service.NotificacionService;
 import gt.edu.cunoc.sistemaeps.service.RolService;
 import gt.edu.cunoc.sistemaeps.service.StorageService;
 import gt.edu.cunoc.sistemaeps.service.UsuarioProyectoService;
@@ -47,6 +50,8 @@ public class BitacoraServiceImp implements BitacoraService {
     private final StorageService storageService;
     private final EtapaService etapaService;
     private final ElementoService elementoService;
+    private final CarreraService carreraService;
+    private final NotificacionService notificacionService;
 
     private final int ID_ELEMENTO_CARTA_FINALIZACION_ASESOR = 12;
     private final int ID_ELEMENTO_FINIQUITO_CONTRAPARTE = 13;
@@ -55,7 +60,8 @@ public class BitacoraServiceImp implements BitacoraService {
     public BitacoraServiceImp(BitacoraRepository bitacoraRepository, RolService rolService,
             UsuarioService usuarioService, RecursoRepository recursoRepository,
             StorageService storageService, EtapaService etapaService,
-            ElementoService elementoService, UsuarioProyectoService usuarioProyectoService) {
+            ElementoService elementoService, UsuarioProyectoService usuarioProyectoService,
+            CarreraService carreraService, NotificacionService notificacionService) {
         this.bitacoraRepository = bitacoraRepository;
         this.rolService = rolService;
         this.usuarioService = usuarioService;
@@ -64,15 +70,24 @@ public class BitacoraServiceImp implements BitacoraService {
         this.etapaService = etapaService;
         this.elementoService = elementoService;
         this.usuarioProyectoService = usuarioProyectoService;
+        this.carreraService = carreraService;
+        this.notificacionService = notificacionService;
     }
 
     @Override
-    public Page<Bitacora> getBitacoras(Pageable pageable) throws Exception {
+    public Page<Bitacora> getBitacoras(String nombre, String registroAcademico, Pageable pageable) throws Exception {
         Usuario usuario = this.usuarioService.getLoggedUsuario();
         Rol rolUsuario = this.rolService.getLoggedUsuarioRol();
         BitacoraFilter filter = new BitacoraFilter();
+        filter.setNombreEstudiante(nombre);
+        filter.setRegistroEstudiante(registroAcademico);
         if (Objects.equals(rolUsuario.getIdRol(), RolUtils.ID_ROL_ESTUDIANTE)) {
             filter.setRegistroEstudiante(usuario.getRegistroAcademico());
+            Specification<Bitacora> spec = BitacoraSpecification.filterBy(filter);
+            return bitacoraRepository.findAll(spec, pageable);
+        } else if (Objects.equals(rolUsuario.getIdRol(), RolUtils.ID_ROL_SUPERVISOR)) {
+            Carrera carrera = this.carreraService.getCarrerasUsuario(usuario.getIdUsuario()).get(0).getIdCarreraFk();
+            filter.setIdCarrera(carrera.getIdCarrera());
             Specification<Bitacora> spec = BitacoraSpecification.filterBy(filter);
             return bitacoraRepository.findAll(spec, pageable);
         } else {
@@ -86,7 +101,21 @@ public class BitacoraServiceImp implements BitacoraService {
     public Bitacora crearBitacora(Proyecto proyecto, BitacoraDto bitacoraDto) throws Exception {
         Bitacora bitacora = new Bitacora(bitacoraDto);
         bitacora.setIdProyectoFk(proyecto);
-        return this.bitacoraRepository.save(bitacora);
+        bitacora = this.bitacoraRepository.save(bitacora);
+        notificarBitacora(proyecto); 
+        return bitacora;
+    }
+
+    private void notificarBitacora(Proyecto proyecto) {
+        try {
+            Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
+            this.notificacionService.notificarRegistroBitacora(supervisor, proyecto);
+            Usuario asesor = this.usuarioProyectoService.getAsesorProyecto(proyecto.getIdProyecto()).getIdUsuarioFk();
+            this.notificacionService.notificarRegistroBitacora(asesor, proyecto);
+            Usuario contraparte = this.usuarioProyectoService.getContraparteProyecto(proyecto.getIdProyecto()).getIdUsuarioFk();
+            this.notificacionService.notificarRegistroBitacora(contraparte, proyecto);
+        } catch (Exception e) {
+        }
     }
 
     @Override
@@ -103,17 +132,16 @@ public class BitacoraServiceImp implements BitacoraService {
         return this.bitacoraRepository.save(bitacora);
     }
 
-    
     @Override
     @Transactional(rollbackFor = Exception.class)
     public Bitacora revisarBitacora(Integer idBitacora) throws Exception {
         Bitacora bitacora = getBitacora(idBitacora);
         Proyecto proyecto = bitacora.getIdProyectoFk();
         Usuario usuario = this.usuarioService.getLoggedUsuario();
-        UsuarioProyecto supervisor = this.usuarioProyectoService.getSupervisorProyecto(proyecto.getIdProyecto());
+        Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
         UsuarioProyecto asesor = this.usuarioProyectoService.getAsesorProyecto(proyecto.getIdProyecto());
         UsuarioProyecto contraparte = this.usuarioProyectoService.getContraparteProyecto(proyecto.getIdProyecto());
-        if (supervisor.getIdUsuarioFk().equals(usuario)) {
+        if (supervisor.equals(usuario)) {
             bitacora.setRevisionSupervisor(Boolean.TRUE);
             return this.bitacoraRepository.save(bitacora);
         } else if (asesor.getIdUsuarioFk().equals(usuario)) {
@@ -134,10 +162,9 @@ public class BitacoraServiceImp implements BitacoraService {
 
     @Override
     public void finalizarBitacora(Proyecto proyecto, MultipartFile cartaAsesor,
-            MultipartFile finiquitoContraparte, MultipartFile informeFinal) throws Exception {
+            MultipartFile finiquitoContraparte) throws Exception {
         Elemento elementoCartaAsesor = this.elementoService.getElemento(ID_ELEMENTO_CARTA_FINALIZACION_ASESOR);
         Elemento elementoFiniquitoContraparte = this.elementoService.getElemento(ID_ELEMENTO_FINIQUITO_CONTRAPARTE);
-        Elemento elementoInfomeFinal = this.elementoService.getElemento(ID_ELEMENTO_INFORME_FINAL);
         EtapaProyecto etapaProyecto = this.etapaService.getEtapaProyecto(
                 proyecto.getIdProyecto(),
                 EtapaUtils.ID_ETAPA_BITACORA);
@@ -147,9 +174,6 @@ public class BitacoraServiceImp implements BitacoraService {
         this.elementoService.crearElementoProyecto(proyecto,
                 elementoFiniquitoContraparte,
                 etapaProyecto, finiquitoContraparte);
-        this.elementoService.crearElementoProyecto(proyecto,
-                elementoInfomeFinal,
-                etapaProyecto, informeFinal);
     }
 
     @Override

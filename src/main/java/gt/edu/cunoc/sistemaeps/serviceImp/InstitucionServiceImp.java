@@ -23,13 +23,13 @@ public class InstitucionServiceImp implements InstitucionService {
     private final UsuarioService usuarioService;
 
     public InstitucionServiceImp(InstitucionRepository institucionRepository,
-            DepartamentoService departamentoService,UsuarioService usuarioService) {
+            DepartamentoService departamentoService, UsuarioService usuarioService) {
         this.institucionRepository = institucionRepository;
         this.departamentoService = departamentoService;
         this.usuarioService = usuarioService;
     }
-    
-    public Institucion getInstitucion(Integer idInstitucion) throws Exception{
+
+    public Institucion getInstitucion(Integer idInstitucion) throws Exception {
         return this.institucionRepository.findById(idInstitucion).get();
     }
 
@@ -38,6 +38,11 @@ public class InstitucionServiceImp implements InstitucionService {
         Institucion institucion = new Institucion(institucionDto);
         Municipio municipio = this.departamentoService.getMunicipio(institucionDto.getMunicipio().getIdMunicipio());
         institucion.setIdMunicipioFk(municipio);
+        if (institucionDto.getMunicipioProyecto() != null) {
+            institucion.setIdMunicipioProyectoFk(
+                    this.departamentoService
+                            .getMunicipio(institucionDto.getMunicipioProyecto().getIdMunicipio()));
+        }
         return save(institucion);
     }
 
@@ -47,14 +52,23 @@ public class InstitucionServiceImp implements InstitucionService {
     }
 
     @Override
-    public Institucion actualizarInstitucion(Integer idProyecto,InstitucionDto institucionDto) throws Exception {
-        Institucion institucion = getInstitucion(institucionDto.getIdInstitucion()); 
+    public Institucion actualizarInstitucion(Integer idProyecto, InstitucionDto institucionDto) throws Exception {
+        Institucion institucion = getInstitucion(institucionDto.getIdInstitucion());
         Proyecto proyecto = institucion.getProyecto();
         Usuario usuario = this.usuarioService.getLoggedUsuario();
-        if(!proyecto.getIdUsuarioFk().equals(usuario)){
+        if (!proyecto.getIdUsuarioFk().equals(usuario)) {
             throw new Exception("No tiene permisos para actualizar institucion");
         }
         institucion.actualizar(institucionDto);
+        Municipio municipio = this.departamentoService.getMunicipio(institucionDto.getMunicipio().getIdMunicipio());
+        institucion.setIdMunicipioFk(municipio);
+        if (institucionDto.getMunicipioProyecto() != null) {
+            institucion.setIdMunicipioProyectoFk(
+                    this.departamentoService
+                            .getMunicipio(institucionDto.getMunicipioProyecto().getIdMunicipio()));
+        } else {
+            institucion.setIdMunicipioProyectoFk(null);
+        }
         return save(institucion);
     }
 

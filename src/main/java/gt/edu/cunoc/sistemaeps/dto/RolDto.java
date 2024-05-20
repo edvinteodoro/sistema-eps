@@ -17,6 +17,8 @@ public class RolDto {
     private Boolean contieneCarrera;
     private Boolean contieneRegistro;
     private Boolean contieneColegiado;
+    private Boolean contieneTitulo;
+    private Boolean contieneMultiplesCarreras;
 
     public RolDto(Rol rol) {
         this.idRol = rol.getIdRol();
@@ -24,5 +26,7 @@ public class RolDto {
         this.contieneCarrera = rol.getContieneCarrera();
         this.contieneRegistro = rol.getContieneRegistro();
         this.contieneColegiado = rol.getContieneColegiado();
+        this.contieneTitulo=rol.getContieneTitulo();
+        this.contieneMultiplesCarreras = rol.getContieneMultiplesCarreras();
     }
 }

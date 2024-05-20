@@ -2,6 +2,7 @@ package gt.edu.cunoc.sistemaeps.serviceImp;
 
 import gt.edu.cunoc.sistemaeps.entity.Carrera;
 import gt.edu.cunoc.sistemaeps.entity.CarreraUsuario;
+import gt.edu.cunoc.sistemaeps.entity.Usuario;
 import gt.edu.cunoc.sistemaeps.repository.CarreraRepository;
 import gt.edu.cunoc.sistemaeps.repository.CarreraUsuarioRepository;
 import gt.edu.cunoc.sistemaeps.service.CarreraService;
@@ -21,7 +22,14 @@ public class CarreraServiceImp implements CarreraService {
     public CarreraServiceImp(CarreraRepository carreraRepository,
             CarreraUsuarioRepository carreraUsuarioRepository) {
         this.carreraRepository = carreraRepository;
-        this.carreraUsuarioRepository=carreraUsuarioRepository;
+        this.carreraUsuarioRepository = carreraUsuarioRepository;
+    }
+
+    @Override
+    public void eliminarCarreras(Usuario usuario) throws Exception{
+        usuario.getCarreraUsuarioList().forEach(usuarioCarrera -> {
+            this.carreraUsuarioRepository.delete(usuarioCarrera);
+        });
     }
 
     @Override
@@ -33,14 +41,14 @@ public class CarreraServiceImp implements CarreraService {
     public List<Carrera> getCarreras() throws Exception {
         return this.carreraRepository.findAll();
     }
-    
+
     @Override
     public List<CarreraUsuario> getCarrerasUsuario(String registroAcademico) throws Exception {
-        return this.carreraUsuarioRepository.findCarrerasUsuario(registroAcademico); 
+        return this.carreraUsuarioRepository.findCarrerasUsuario(registroAcademico);
     }
-    
+
     @Override
-    public List<CarreraUsuario> getCarrerasUsuario(Integer idUsuario) throws Exception{
+    public List<CarreraUsuario> getCarrerasUsuario(Integer idUsuario) throws Exception {
         return this.carreraUsuarioRepository.findCarrerasUsuario(idUsuario);
     }
 

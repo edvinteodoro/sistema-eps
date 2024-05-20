@@ -9,7 +9,9 @@ import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -47,6 +49,9 @@ public class UsuarioController {
             @RequestParam(required = false) Integer idRol,
             Pageable pageable) {
         try {
+            pageable = PageRequest.of(pageable.getPageNumber(),
+                    pageable.getPageSize(),
+                    Sort.by(Sort.Direction.DESC, "idUsuario"));
             Page<UsuarioDto> usuarios = this.usuarioService.getAll(nombre, registroAcademico, colegiado,dpi, idRol, pageable)
                     .map(UsuarioDto::new);
             return ResponseEntity.ok(usuarios);
@@ -70,6 +75,26 @@ public class UsuarioController {
             @RequestBody UsuarioDto usuarioDto) {
         try {
             UsuarioDto usuario = new UsuarioDto(this.usuarioService.actualizarUsuario(idUsuario, usuarioDto));
+            return ResponseEntity.ok(usuario);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+    
+    @PostMapping("/{idUsuario}/reset-password")
+    public ResponseEntity resetPassword(@PathVariable Integer idUsuario) {
+        try {
+            UsuarioDto usuario = new UsuarioDto(this.usuarioService.resetPassword(idUsuario)); 
+            return ResponseEntity.ok(usuario);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+    
+    @PostMapping("/{idUsuario}/desactivar")
+    public ResponseEntity desactivarUsuario(@PathVariable Integer idUsuario) {
+        try {
+            UsuarioDto usuario = new UsuarioDto(this.usuarioService.desactivarUsuario(idUsuario)); 
             return ResponseEntity.ok(usuario);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
@@ -107,5 +132,5 @@ public class UsuarioController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
-    }
+    } 
 }

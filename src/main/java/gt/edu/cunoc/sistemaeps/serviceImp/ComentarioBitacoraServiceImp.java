@@ -13,6 +13,7 @@ import gt.edu.cunoc.sistemaeps.service.ComentarioBitacoraService;
 import gt.edu.cunoc.sistemaeps.service.RolService;
 import gt.edu.cunoc.sistemaeps.service.UsuarioProyectoService;
 import gt.edu.cunoc.sistemaeps.service.UsuarioService;
+import gt.edu.cunoc.sistemaeps.util.RolUtils;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -52,13 +53,13 @@ public class ComentarioBitacoraServiceImp implements ComentarioBitacoraService {
         Usuario usuario = this.usuarioService.getLoggedUsuario();
         Bitacora bitacora = this.bitacoraService.getBitacora(idBitacora);
         Proyecto proyecto = bitacora.getIdProyectoFk();
-        UsuarioProyecto supervisor = this.usuarioProyectoService.getSupervisorProyecto(proyecto.getIdProyecto());
+        Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera()); 
         UsuarioProyecto asesor = this.usuarioProyectoService.getAsesorProyecto(proyecto.getIdProyecto());
         UsuarioProyecto contraparte = this.usuarioProyectoService.getContraparteProyecto(proyecto.getIdProyecto());
         if (proyecto.getIdUsuarioFk().equals(usuario)) {
             return crearComentario(bitacora, usuario, this.rolService.getLoggedUsuarioRol(), comentarioBitacoraDto);
-        } else if (supervisor.getIdUsuarioFk().equals(usuario)) {
-            return crearComentario(bitacora, usuario, supervisor.getIdRolFk(), comentarioBitacoraDto);
+        } else if (supervisor.equals(usuario)) { 
+            return crearComentario(bitacora, usuario,this.rolService.getRol(RolUtils.ID_ROL_SUPERVISOR), comentarioBitacoraDto);
         } else if (asesor.getIdUsuarioFk().equals(usuario)) {
             return crearComentario(bitacora, usuario, asesor.getIdRolFk(), comentarioBitacoraDto);
         } else if (contraparte.getIdUsuarioFk().equals(usuario)) {

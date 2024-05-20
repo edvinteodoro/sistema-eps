@@ -13,11 +13,14 @@ import org.springframework.data.domain.Pageable;
 public interface ActaService {
     public Acta generarActaAnterproyecto(Proyecto proyecto, ActaDto actaDto) throws Exception;
     public Acta getActaAnteproyecto(Proyecto proyecto) throws Exception;
-    public Acta getActaAnteproyecto(Integer idActa) throws Exception;
     public Acta getActaExamenGeneral(Proyecto proyecto) throws Exception;
+    public Acta getActaAprobacion(Proyecto proyecto) throws Exception;
+    public Acta getActa(Integer idActa) throws Exception;
     public Acta actualizarActa(Integer idActa,ActaDto actaDto) throws Exception;
     public Acta crearActaAnteproyecto(Proyecto proyecto, ActaDto actaDto) throws Exception;
     public Acta crearActaExamenGeneral(Proyecto proyecto, ActaDto actaDto) throws Exception;
-    public Page<Acta> getActasAnteproyecto(Pageable pageable) throws Exception;
+    public Acta crearActaFinalizacion(Proyecto proyecto, ActaDto actaDto) throws Exception;
+    public Page<Acta> getActas(String nombre, String registroAcademico,Pageable pageable) throws Exception;
     public Acta generarActaExamenGeneral(Proyecto proyecto, ActaDto actaDto) throws Exception;
+    public Acta generarActaAprobacion(Proyecto proyecto, ActaDto actaDto) throws Exception;
 }

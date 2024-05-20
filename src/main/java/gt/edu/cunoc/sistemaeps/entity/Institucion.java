@@ -12,7 +12,6 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToOne;
 import jakarta.persistence.Table;
-import java.util.List;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -34,25 +33,36 @@ public class Institucion {
     @Basic(optional = false)
     @Column(name = "nombre")
     private String nombre;
-    @Column(name = "coordenadas")
-    private String coordenadas;
     @Column(name = "direccion")
     private String direccion;
+    @Column(name = "direccion_proyecto")
+    private String direccionProyecto;
+    @Column(name = "coordenada_proyecto")
+    private String coordenadaProyecto;
     @JoinColumn(name = "id_municipio_fk", referencedColumnName = "id_municipio")
     @ManyToOne
     private Municipio idMunicipioFk;
+    @JoinColumn(name = "id_municipio_proyecto_fk", referencedColumnName = "id_municipio")
+    @ManyToOne
+    private Municipio idMunicipioProyectoFk;
     @OneToOne(cascade = CascadeType.ALL, mappedBy = "idInstitucionFk")
     private Proyecto proyecto;
-    
-    public Institucion(InstitucionDto institucionDto){
-        this.nombre=institucionDto.getNombre();
-        this.coordenadas=institucionDto.getCoordenadas();
-        this.direccion=institucionDto.getDireccion();
+
+    public Institucion(InstitucionDto institucionDto) {
+        this.nombre = institucionDto.getNombre();
+        this.direccion = institucionDto.getDireccion();
+        if (institucionDto.getCoordenadaProyecto() != null && !institucionDto.getCoordenadaProyecto().isBlank()) {
+            this.coordenadaProyecto = institucionDto.getCoordenadaProyecto();
+        }
+        if (institucionDto.getDireccionProyecto() != null && !institucionDto.getDireccionProyecto().isBlank()) {
+            this.direccionProyecto = institucionDto.getDireccionProyecto();
+        }
     }
-    
-    public void actualizar(InstitucionDto institucionDto){
-        this.nombre=institucionDto.getNombre();
-        this.coordenadas=institucionDto.getCoordenadas();
-        this.direccion=institucionDto.getDireccion();
+
+    public void actualizar(InstitucionDto institucionDto) {
+        this.nombre = institucionDto.getNombre();
+        this.direccion = institucionDto.getDireccion();
+        this.coordenadaProyecto = institucionDto.getCoordenadaProyecto();
+        this.direccionProyecto = institucionDto.getDireccionProyecto();
     }
 }

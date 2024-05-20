@@ -61,25 +61,16 @@ public class RolServiceImp implements RolService {
     }
 
     @Override
-    public void actualizarRol(Usuario usuario, List<RolDto> rolesDto) throws Exception {
-        /*List<Rol> roles = getRolesUsuario(usuario.getIdUsuario());
-        for (RolDto rolDto : rolesDto) {
-            Rol rol = getRol(rolDto.getIdRol());
-            if (!roles.contains(rol)) {
-                RolUsuario rolUsuario = new RolUsuario();
-                rolUsuario.setIdRolFk(rol);
-                rolUsuario.setIdUsuarioFk(usuario);
-                this.rolUsuarioRepository.save(rolUsuario);
-            }
-        }
-        List<Integer> idRoles = rolesDto.stream().map(rolDto -> rolDto.getIdRol()).toList();
-        for (Rol rol : roles) {
-            if(!idRoles.contains(rol.getIdRol())){
-                RolUsuario rolUsuario= this.rolUsuarioRepository.findRolUsuario(usuario.getIdUsuario(), rol.getIdRol());
-                this.rolUsuarioRepository.delete(rolUsuario);
-            }
-        }*/
-    } 
+    public void actualizarRol(Usuario usuario, RolDto rolDto) throws Exception {
+        
+    }
+    
+    @Override
+    public void eliminarRol(Usuario usuario) throws Exception{
+        usuario.getRolUsuarioList().forEach(rolUsuario -> {
+            this.rolUsuarioRepository.delete(rolUsuario);
+        });
+    }
 
     @Override
     public List<RolUsuario> getRolUsuario(Integer idUsuario) {

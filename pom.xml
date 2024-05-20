@@ -21,11 +21,22 @@
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
-            <id>localEdvin</id>
+            <id>dev</id>
             <properties>
                 <databaseUrl>jdbc:mysql://localhost:3306/datos_eps</databaseUrl>
                 <databaseUser>root</databaseUser>
                 <databasePass>Root.3161</databasePass>
+                <environment>DEV</environment>
+                <portNumber>8080</portNumber>
+            </properties>
+        </profile>
+        <profile>
+            <id>prod</id>
+            <properties>
+                <databaseUrl>jdbc:mysql://localhost:3306/datos_eps</databaseUrl>
+                <databaseUser>root</databaseUser>
+                <databasePass>Root.3161</databasePass>
+                <environment>PROD</environment>
                 <portNumber>8080</portNumber>
             </properties>
         </profile>

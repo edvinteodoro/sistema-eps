@@ -18,15 +18,21 @@ public class InstitucionDto {
 
     private Integer idInstitucion;
     private String nombre;
-    private String coordenadas;
     private String direccion;
+    private String coordenadaProyecto;
+    private String direccionProyecto;
     private MunicipioDto municipio;
+    private MunicipioDto municipioProyecto;
 
     public InstitucionDto(Institucion institucion) {
         this.idInstitucion = institucion.getIdInstitucion();
         this.nombre = institucion.getNombre();
-        this.coordenadas = institucion.getCoordenadas();
         this.direccion = institucion.getDireccion();
+        this.coordenadaProyecto = institucion.getCoordenadaProyecto();
+        this.direccionProyecto = institucion.getDireccionProyecto();
         this.municipio = new MunicipioDto(institucion.getIdMunicipioFk());
+        if (institucion.getIdMunicipioProyectoFk() != null) {
+            this.municipioProyecto = new MunicipioDto(institucion.getIdMunicipioProyectoFk());
+        }
     }
 }

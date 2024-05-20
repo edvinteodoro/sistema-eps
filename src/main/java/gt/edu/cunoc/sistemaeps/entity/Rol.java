@@ -36,6 +36,12 @@ public class Rol {
     @Basic(optional = false)
     @Column(name = "contiene_colegiado")
     private Boolean contieneColegiado;
+    @Basic(optional = false)
+    @Column(name = "contiene_titulo")
+    private Boolean contieneTitulo;
+    @Basic(optional = false)
+    @Column(name = "contiene_multiples_carreras")
+    private Boolean contieneMultiplesCarreras;
     @ManyToMany(mappedBy = "rolList")
     private List<Permisos> permisosList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "idRolFk")

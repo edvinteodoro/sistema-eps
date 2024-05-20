@@ -20,5 +20,6 @@ public interface RolService {
     public Rol getLoggedUsuarioRol() throws Exception;
     public List<RolUsuario> getRolUsuario(Integer idUsuario);
     public List<Rol> getRolesUsuario(Integer idUsuario);
-    public void actualizarRol(Usuario usuario, List<RolDto> rolesDto) throws Exception;
+    public void actualizarRol(Usuario usuario, RolDto rolDto) throws Exception;
+    public void eliminarRol(Usuario usuario) throws Exception;
 }

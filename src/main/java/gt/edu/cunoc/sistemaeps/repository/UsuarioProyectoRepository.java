@@ -24,6 +24,12 @@ public interface UsuarioProyectoRepository extends JpaRepository<UsuarioProyecto
             + "AND up.idRolFk.idRol = :idRol "
             + "AND up.activo = :activo")
     public UsuarioProyecto findUsuarioProyecto(Integer idProyecto, Integer idRol, Boolean activo);
+    
+    @Query("SELECT up FROM UsuarioProyecto up "
+            + "WHERE up.idProyectoFk.idProyecto = :idProyecto "
+            + "AND up.idUsuarioFk.idUsuario = :idUsuario "
+            + "AND up.activo = :activo")
+    public UsuarioProyecto findUsuarioAsignadoProyecto(Integer idProyecto,Integer idUsuario,Boolean activo);
 
     @Query("SELECT u FROM Usuario u "
             + "LEFT JOIN u.rolUsuarioList ru "

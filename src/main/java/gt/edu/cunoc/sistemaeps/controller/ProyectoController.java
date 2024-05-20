@@ -7,13 +7,16 @@ import gt.edu.cunoc.sistemaeps.dto.ConvocatoriaDto;
 import gt.edu.cunoc.sistemaeps.dto.ElementoProyectoDto;
 import gt.edu.cunoc.sistemaeps.dto.EtapaProyectoDto;
 import gt.edu.cunoc.sistemaeps.dto.InstitucionDto;
+import gt.edu.cunoc.sistemaeps.dto.ProrrogaDto;
 import gt.edu.cunoc.sistemaeps.dto.ProyectoDto;
 import gt.edu.cunoc.sistemaeps.dto.UsuarioDto;
+import gt.edu.cunoc.sistemaeps.entity.Proyecto;
 import gt.edu.cunoc.sistemaeps.service.ComentarioService;
 import gt.edu.cunoc.sistemaeps.service.ElementoService;
 import gt.edu.cunoc.sistemaeps.service.EtapaService;
 import gt.edu.cunoc.sistemaeps.service.InstitucionService;
 import gt.edu.cunoc.sistemaeps.service.PersonaService;
+import gt.edu.cunoc.sistemaeps.service.ProrrogaService;
 import gt.edu.cunoc.sistemaeps.service.ProyectoService;
 import gt.edu.cunoc.sistemaeps.service.UsuarioProyectoService;
 import java.util.List;
@@ -41,6 +44,7 @@ import org.springframework.web.multipart.MultipartFile;
 public class ProyectoController {
 
     private final ProyectoService proyectoService;
+    private final ProrrogaService prorrogaService;
     private final ElementoService elementoService;
     private final ComentarioService comentarioService;
     private final EtapaService etapaService;
@@ -51,7 +55,8 @@ public class ProyectoController {
     public ProyectoController(ProyectoService proyectoService, ElementoService elementoService,
             ComentarioService comentarioService, EtapaService etapaService,
             PersonaService personaService, InstitucionService institucionService,
-            UsuarioProyectoService usuarioProyectoService) {
+            UsuarioProyectoService usuarioProyectoService,
+            ProrrogaService prorrogaService) {
         this.proyectoService = proyectoService;
         this.elementoService = elementoService;
         this.comentarioService = comentarioService;
@@ -59,16 +64,20 @@ public class ProyectoController {
         this.personaService = personaService;
         this.institucionService = institucionService;
         this.usuarioProyectoService = usuarioProyectoService;
+        this.prorrogaService = prorrogaService;
     }
 
     @GetMapping
-    public ResponseEntity getProyectos(@RequestParam(required = false) Boolean activo,
+    public ResponseEntity getProyectos(
+            @RequestParam(required = false) String nombre,
+            @RequestParam(required = false) String registroAcademico,
+            @RequestParam(required = false) Boolean activo,
             Pageable pageable) {
         try {
             pageable = PageRequest.of(pageable.getPageNumber(),
                     pageable.getPageSize(),
                     Sort.by(Sort.Direction.DESC, "idProyecto"));
-            Page<ProyectoDto> proyectos = this.proyectoService.getProyectos(pageable)
+            Page<ProyectoDto> proyectos = this.proyectoService.getProyectos(nombre, registroAcademico, pageable)
                     .map(ProyectoDto::new);
             return ResponseEntity.ok(proyectos);
         } catch (Exception e) {
@@ -102,6 +111,19 @@ public class ProyectoController {
         try {
             ProyectoDto proyecto = new ProyectoDto(this.proyectoService
                     .crearProyecto(proyectoDto));
+            return ResponseEntity.ok(proyecto);
+        } catch (Exception e) {
+            System.out.println("error: " + e.getMessage());
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/{idProyecto}/finalizar-proyecto")
+    public ResponseEntity finalizarProyecto(@PathVariable Integer idProyecto,
+            @RequestBody ComentarioDto comentarioDto) {
+        try {
+            ProyectoDto proyecto = new ProyectoDto(this.proyectoService
+                    .finalizarProyecto(idProyecto, comentarioDto));
             return ResponseEntity.ok(proyecto);
         } catch (Exception e) {
             System.out.println("error: " + e.getMessage());
@@ -186,15 +208,16 @@ public class ProyectoController {
     @GetMapping("/{idProyecto}/usuarios/supervisor")
     public ResponseEntity getSupervisorProyecto(@PathVariable Integer idProyecto) {
         try {
+            Proyecto proyecto = this.proyectoService.getProyecto(idProyecto);
             UsuarioDto supervisor = new UsuarioDto(
-                    this.usuarioProyectoService.getSupervisorProyecto(idProyecto).getIdUsuarioFk());
+                    this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera()));
             return ResponseEntity.ok(supervisor);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
-    @PutMapping("/{idProyecto}/usuarios/supervisor")
+    /*@PutMapping("/{idProyecto}/usuarios/supervisor")
     public ResponseEntity actualizarSupervisor(@PathVariable Integer idProyecto,
             @RequestBody UsuarioDto usuarioDto) {
         try {
@@ -203,8 +226,7 @@ public class ProyectoController {
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
-    }
-
+    }*/
     @GetMapping("/{idProyecto}/usuarios/asesor")
     public ResponseEntity getAsesorProyecto(@PathVariable Integer idProyecto) {
         try {
@@ -241,8 +263,9 @@ public class ProyectoController {
     @GetMapping("/{idProyecto}/usuarios/coordinador-carrera")
     public ResponseEntity getCoordinadorCarreraProyecto(@PathVariable Integer idProyecto) {
         try {
+            Proyecto proyecto = this.proyectoService.getProyecto(idProyecto);
             UsuarioDto coordinadorCarrera = new UsuarioDto(
-                    this.usuarioProyectoService.getCoordinadoCarreraProyecto(idProyecto).getIdUsuarioFk());
+                    this.usuarioProyectoService.getCoordinadorCarreraDisponible(proyecto.getIdCarreraFk().getIdCarrera()));
             return ResponseEntity.ok(coordinadorCarrera);
         } catch (Exception e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
@@ -256,6 +279,7 @@ public class ProyectoController {
                     this.usuarioProyectoService.getContraparteProyecto(idProyecto).getIdUsuarioFk());
             return ResponseEntity.ok(asesor);
         } catch (Exception e) {
+            System.out.println("error: " + e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -289,6 +313,7 @@ public class ProyectoController {
             UsuarioDto asesorTecnico = new UsuarioDto(this.proyectoService.agregarAsesorTecnico(idProyecto, usuarioDto));
             return ResponseEntity.ok(asesorTecnico);
         } catch (Exception e) {
+            System.out.println("error: "+e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -304,7 +329,7 @@ public class ProyectoController {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
-    
+
     @DeleteMapping("/{idProyecto}/personas/{idPersona}")
     public ResponseEntity eliminarPersonaProyecto(@PathVariable Integer idProyecto,
             @PathVariable Integer idPersona, @RequestBody UsuarioDto usuarioDto) {
@@ -336,6 +361,7 @@ public class ProyectoController {
             ComentarioDto comentario = new ComentarioDto(this.comentarioService.crearComentario(idProyecto, comentarioDto));
             return ResponseEntity.ok(comentario);
         } catch (Exception e) {
+            System.out.println("error: " + e);
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -347,7 +373,7 @@ public class ProyectoController {
             return ResponseEntity.ok(null);
         } catch (Exception e) {
             System.out.println("error: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
@@ -359,7 +385,7 @@ public class ProyectoController {
             return ResponseEntity.ok(comentario);
         } catch (Exception e) {
             System.out.println("error: " + e.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
@@ -370,7 +396,7 @@ public class ProyectoController {
             return ResponseEntity.ok(null);
         } catch (Exception e) {
             System.out.println("error: " + e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
@@ -382,7 +408,18 @@ public class ProyectoController {
             return ResponseEntity.ok(null);
         } catch (Exception e) {
             System.out.println("error: " + e);
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/{idProyecto}/aprobar-informe-final-supervisor")
+    public ResponseEntity aprobarInformeFinalSupervisor(@PathVariable Integer idProyecto) {
+        try {
+            this.proyectoService.aprobarInformeFinalSupervisor(idProyecto);
+            return ResponseEntity.ok(null);
+        } catch (Exception e) {
+            System.out.println("error: " + e);
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
@@ -410,6 +447,18 @@ public class ProyectoController {
         }
     }
 
+    @GetMapping("/{idProyecto}/convocatoria-examen-general")
+    public ResponseEntity getConvocatoriaExamenGeneral(@PathVariable Integer idProyecto) {
+        try {
+            ConvocatoriaDto convocatoria = new ConvocatoriaDto(
+                    this.proyectoService.getConvocatoriaExamenGeneral(idProyecto));
+            return ResponseEntity.ok(convocatoria);
+        } catch (Exception e) {
+            System.out.println("error:" + e.getMessage());
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
     @PutMapping("/{idProyecto}/convocatoria-anteproyecto")
     public ResponseEntity actualizarConvocatoriaAnteproyecto(@PathVariable Integer idProyecto,
             @RequestBody ConvocatoriaDto convocatoriaDto) {
@@ -420,7 +469,7 @@ public class ProyectoController {
             System.out.println("error:" + e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
-    } 
+    }
 
     @PostMapping("/{idProyecto}/cargar-convocatoria-anteproyecto")
     public ResponseEntity cargarConvocatoriaAnteproyecto(@PathVariable Integer idProyecto,
@@ -433,7 +482,7 @@ public class ProyectoController {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
-    
+
     @PostMapping("/{idProyecto}/cargar-carta-aceptacion-contraparte")
     public ResponseEntity cargaCartaAceptacionContraparte(@PathVariable Integer idProyecto,
             @ModelAttribute MultipartFile file) {
@@ -446,12 +495,11 @@ public class ProyectoController {
         }
     }
 
-    @PostMapping("/{idProyecto}/acta-anteproyecto")
-    public ResponseEntity crearActaAnteproyecto(@PathVariable Integer idProyecto,
+    @PostMapping("/{idProyecto}/acta")
+    public ResponseEntity crearActa(@PathVariable Integer idProyecto,
             @RequestBody ActaDto actaDto) {
         try {
-            System.out.println("acta");
-            this.proyectoService.crearActaAnteproyecto(idProyecto, actaDto);
+            this.proyectoService.crearActa(idProyecto, actaDto);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
             System.out.println("error:" + e.getMessage());
@@ -471,11 +519,59 @@ public class ProyectoController {
         }
     }
 
+    @GetMapping("/{idProyecto}/acta-examen-general")
+    public ResponseEntity getActaExamenGeneral(@PathVariable Integer idProyecto) {
+        try {
+            ActaDto acta = new ActaDto(
+                    this.proyectoService.getActaExamenGeneral(idProyecto));
+            return ResponseEntity.ok(acta);
+        } catch (Exception e) {
+            System.out.println("error:" + e.getMessage());
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @GetMapping("/{idProyecto}/acta-aprobacion")
+    public ResponseEntity getActaAprobacion(@PathVariable Integer idProyecto) {
+        try {
+            ActaDto acta = new ActaDto(
+                    this.proyectoService.getActaAprobacion(idProyecto));
+            return ResponseEntity.ok(acta);
+        } catch (Exception e) {
+            System.out.println("error:" + e.getMessage());
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
     @PostMapping("/{idProyecto}/generar-acta-anteproyecto")
     public ResponseEntity generarActaAnteproyecto(@PathVariable Integer idProyecto,
             @RequestBody ActaDto actaDto) {
         try {
             ActaDto acta = new ActaDto(this.proyectoService.generarActaAnteproyecto(idProyecto, actaDto));
+            return ResponseEntity.ok(acta);
+        } catch (Exception e) {
+            System.out.println("error:" + e.getMessage());
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/{idProyecto}/generar-acta-examen-general")
+    public ResponseEntity generarActaExamenGeneral(@PathVariable Integer idProyecto,
+            @RequestBody ActaDto actaDto) {
+        try {
+            ActaDto acta = new ActaDto(this.proyectoService.generarActaExamenGeneral(idProyecto, actaDto));
+            return ResponseEntity.ok(acta);
+        } catch (Exception e) {
+            System.out.println("error:" + e.getMessage());
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/{idProyecto}/generar-acta-aprobacion")
+    public ResponseEntity generarActaAprobacion(@PathVariable Integer idProyecto,
+            @RequestBody ActaDto actaDto) {
+        try {
+            ActaDto acta = new ActaDto(this.proyectoService.generarActaAprobacion(idProyecto, actaDto));
             return ResponseEntity.ok(acta);
         } catch (Exception e) {
             System.out.println("error:" + e.getMessage());
@@ -498,10 +594,41 @@ public class ProyectoController {
     @PostMapping("/{idProyecto}/finalizar-bitacora")
     public ResponseEntity finalizarBitacora(@PathVariable Integer idProyecto,
             @ModelAttribute MultipartFile cartaAsesor,
-            @ModelAttribute MultipartFile finiquitoContraparte,
+            @ModelAttribute MultipartFile finiquitoContraparte) {
+        try {
+            this.proyectoService.finalizarBitacora(idProyecto, cartaAsesor, finiquitoContraparte);
+            return ResponseEntity.ok(null);
+        } catch (Exception e) {
+            System.out.println("error:" + e.getMessage());
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/{idProyecto}/aprobar-bitacora")
+    public ResponseEntity aprobarBitacora(@PathVariable Integer idProyecto) {
+        try {
+            this.proyectoService.aprobarBitacora(idProyecto);
+            return ResponseEntity.ok(null);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/{idProyecto}/rechazar-bitacora")
+    public ResponseEntity rechazarBitacora(@PathVariable Integer idProyecto) {
+        try {
+            this.proyectoService.rechazarBitacora(idProyecto);
+            return ResponseEntity.ok(null);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/{idProyecto}/cargar-informe-final")
+    public ResponseEntity cargarInformeFinal(@PathVariable Integer idProyecto,
             @ModelAttribute MultipartFile informeFinal) {
         try {
-            this.proyectoService.finalizarBitacora(idProyecto, cartaAsesor, finiquitoContraparte, informeFinal);
+            this.proyectoService.cargarInformeFinal(idProyecto, informeFinal);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
             System.out.println("error:" + e.getMessage());
@@ -516,6 +643,55 @@ public class ProyectoController {
             BitacoraDto bitacora = new BitacoraDto(this.proyectoService.crearBitacora(idProyecto, bitacoraDto));
             return ResponseEntity.ok(bitacora);
         } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/{idProyecto}/prorrogas")
+    public ResponseEntity crearProrroga(@PathVariable Integer idProyecto,
+            @ModelAttribute ProrrogaDto prorrogaDto) {
+        try {
+            ProrrogaDto prorroga = new ProrrogaDto(this.prorrogaService.crearProrroga(idProyecto, prorrogaDto));
+            return ResponseEntity.ok(prorroga);
+        } catch (Exception e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/{idProyecto}/cargar-articulo")
+    public ResponseEntity cargarArticulo(@PathVariable Integer idProyecto,
+            @ModelAttribute MultipartFile articulo,
+            @ModelAttribute MultipartFile traduccionArticulo) {
+        try {
+            this.proyectoService.cargarArticulo(idProyecto, articulo, traduccionArticulo);
+            return ResponseEntity.ok(null);
+        } catch (Exception e) {
+            System.out.println("error:" + e.getMessage());
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/{idProyecto}/cargar-constancia-linguistica")
+    public ResponseEntity cargarArticulo(@PathVariable Integer idProyecto,
+            @ModelAttribute MultipartFile constanciaLinguistica) {
+        try {
+            this.proyectoService.cargarConstanciaLinguistica(idProyecto, constanciaLinguistica);
+            return ResponseEntity.ok(null);
+        } catch (Exception e) {
+            System.out.println("error:" + e.getMessage());
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
+    }
+
+    @PostMapping("/{idProyecto}/cargar-dictamen-revision")
+    public ResponseEntity cargarDictamenRevision(@PathVariable Integer idProyecto,
+            @ModelAttribute MultipartFile dictamenRevision,
+            @ModelAttribute MultipartFile cartaRevision) {
+        try {
+            this.proyectoService.cargarDictamenRevsion(idProyecto, dictamenRevision, cartaRevision);
+            return ResponseEntity.ok(null);
+        } catch (Exception e) {
+            System.out.println("error:" + e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }

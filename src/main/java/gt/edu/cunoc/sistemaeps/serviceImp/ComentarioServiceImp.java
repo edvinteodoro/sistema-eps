@@ -77,29 +77,46 @@ public class ComentarioServiceImp implements ComentarioService {
                 return crearComentario(comentarioDto, etapaActiva, usuario, rol);
             }
             case RolUtils.ID_ROL_SECRETARIA -> {
-                UsuarioProyecto secretariaProyecto = this.usuarioProyectoService.getSecretariaProyecto(idProyecto);
-                if (!secretariaProyecto.getIdUsuarioFk().equals(usuario)) {
+                Usuario secretaria = this.usuarioProyectoService.getSecretariaDisponible();
+                if (!secretaria.equals(usuario)) {
                     throw new Exception("No tiene permisos para agregar comentario");
                 }
                 return crearComentario(comentarioDto, etapaActiva, usuario, rol);
             }
-            case RolUtils.ID_ROL_SUPERVISOR -> {
-                UsuarioProyecto supervisorProyecto = this.usuarioProyectoService.getSupervisorProyecto(idProyecto);
-                if (!supervisorProyecto.getIdUsuarioFk().equals(usuario)) {
-                    throw new Exception("No tiene permisos para agregar comentario");
+            case RolUtils.ID_ROL_SUPERVISOR, RolUtils.ID_ROL_ASESOR, RolUtils.ID_ROL_CONTRAPARTE, RolUtils.ID_ROL_COORDINADOR_EPS, RolUtils.ID_ROL_COORDINADOR_CARRERA -> {
+                Integer idCarrera = proyecto.getIdCarreraFk().getIdCarrera();
+                UsuarioProyecto asesorProyecto = null;
+                UsuarioProyecto contraparteProyecto=null;
+                Usuario supervisor=null;
+                Usuario coordinadorEps=null;
+                Usuario coordinadorCarrera=null;
+                try {
+                    contraparteProyecto = this.usuarioProyectoService.getContraparteProyecto(idProyecto);
+                } catch (Exception e) {
                 }
-                return crearComentario(comentarioDto, etapaActiva, usuario, rol);
-            }
-            case RolUtils.ID_ROL_ASESOR -> {
-                UsuarioProyecto asesorProyecto = this.usuarioProyectoService.getAsesorProyecto(idProyecto);
-                if (!asesorProyecto.getIdUsuarioFk().equals(usuario)) {
-                    throw new Exception("No tiene permisos para agregar comentario");
+                try {
+                    asesorProyecto = this.usuarioProyectoService.getAsesorProyecto(idProyecto);
+                } catch (Exception e) {
                 }
-                return crearComentario(comentarioDto, etapaActiva, usuario, rol);
-            }
-            case RolUtils.ID_ROL_CONTRAPARTE -> {
-                UsuarioProyecto contraparteProyecto = this.usuarioProyectoService.getContraparteProyecto(idProyecto);
-                if (!contraparteProyecto.getIdUsuarioFk().equals(usuario)) {
+                try {
+                    supervisor = this.usuarioProyectoService.getSupervisorDisponible(idCarrera);
+                } catch (Exception e) {
+                }
+                try {
+                    coordinadorEps = this.usuarioProyectoService.getCoordinadorEpsDisponible();
+                } catch (Exception e) {
+                }
+                try {
+                    coordinadorCarrera = this.usuarioProyectoService.getCoordinadorCarreraDisponible(idCarrera);
+                } catch (Exception e) {
+                }
+                if (contraparteProyecto != null && contraparteProyecto.getIdUsuarioFk().equals(usuario)) {
+                    rol = this.rolService.getRol(RolUtils.ID_ROL_CONTRAPARTE);
+                } else if (asesorProyecto != null && asesorProyecto.getIdUsuarioFk().equals(usuario)) {
+                    rol = this.rolService.getRol(RolUtils.ID_ROL_ASESOR);
+                } else if (supervisor.equals(usuario) || coordinadorEps.equals(usuario) || coordinadorCarrera.equals(usuario)) {
+
+                } else {
                     throw new Exception("No tiene permisos para agregar comentario");
                 }
                 return crearComentario(comentarioDto, etapaActiva, usuario, rol);

@@ -27,9 +27,9 @@ import gt.edu.cunoc.sistemaeps.service.CarreraService;
 import gt.edu.cunoc.sistemaeps.service.ComentarioService;
 import gt.edu.cunoc.sistemaeps.service.ConvocatoriaService;
 import gt.edu.cunoc.sistemaeps.service.ElementoService;
-import gt.edu.cunoc.sistemaeps.service.EmailService;
 import gt.edu.cunoc.sistemaeps.service.EtapaService;
 import gt.edu.cunoc.sistemaeps.service.InstitucionService;
+import gt.edu.cunoc.sistemaeps.service.NotificacionService;
 import gt.edu.cunoc.sistemaeps.service.PdfGeneratorService;
 import gt.edu.cunoc.sistemaeps.service.PersonaService;
 import gt.edu.cunoc.sistemaeps.service.ProyectoService;
@@ -39,6 +39,7 @@ import gt.edu.cunoc.sistemaeps.service.UsuarioProyectoService;
 import gt.edu.cunoc.sistemaeps.service.UsuarioService;
 import gt.edu.cunoc.sistemaeps.specification.ProyectoFilter;
 import gt.edu.cunoc.sistemaeps.specification.ProyectoSpecification;
+import gt.edu.cunoc.sistemaeps.util.ElementoUtils;
 import gt.edu.cunoc.sistemaeps.util.EtapaUtils;
 import gt.edu.cunoc.sistemaeps.util.RolUtils;
 import java.util.List;
@@ -57,11 +58,6 @@ import org.springframework.web.multipart.MultipartFile;
 @Service
 public class ProyectoServiceImp implements ProyectoService {
 
-    //Elementos de proyecto
-    private final int ID_ELEMENTO_TITULO = 1;
-    private final int ID_ELEMENTO_CONVOCATORIA_ANTEPROYECTO_FIRMADA = 9;
-    private final int ID_ELEMENTO_CARTA_ACEPTACION_CONTRAPARTE = 11;
-
     private final ProyectoRepository proyectoRepository;
     private final InstitucionService institucionService;
     private final PersonaService personaService;
@@ -72,9 +68,7 @@ public class ProyectoServiceImp implements ProyectoService {
     private final ComentarioService comentarioService;
     private final RolService rolService;
     private final ElementoService elementoService;
-    private final PdfGeneratorService pdfGeneratorService;
-    private final StorageService storageService;
-    private final EmailService emailService;
+    private final NotificacionService notificacionService;
     private final ConvocatoriaService convocatoriaService;
     private final ActaService actaService;
     private final BitacoraService bitacoraService;
@@ -86,7 +80,7 @@ public class ProyectoServiceImp implements ProyectoService {
             ComentarioService comentarioService, RolService rolService,
             ElementoService elementoService, ConvocatoriaService convocatoriaService,
             PdfGeneratorService pdfGeneratorService, StorageService storageService,
-            EmailService emailService, ActaService actaService,
+            NotificacionService notificacionService, ActaService actaService,
             BitacoraService bitacoraService) {
         this.proyectoRepository = proyectoRepository;
         this.institucionService = institucionService;
@@ -98,9 +92,7 @@ public class ProyectoServiceImp implements ProyectoService {
         this.comentarioService = comentarioService;
         this.rolService = rolService;
         this.elementoService = elementoService;
-        this.pdfGeneratorService = pdfGeneratorService;
-        this.storageService = storageService;
-        this.emailService = emailService;
+        this.notificacionService = notificacionService;
         this.convocatoriaService = convocatoriaService;
         this.actaService = actaService;
         this.bitacoraService = bitacoraService;
@@ -122,28 +114,48 @@ public class ProyectoServiceImp implements ProyectoService {
     }
 
     @Override
-    public Page<Proyecto> getProyectos(Pageable pageable) throws Exception {
+    public Page<Proyecto> getProyectos(String nombre, String registroAcademico, Pageable pageable) throws Exception {
         Usuario usuario = this.usuarioService.getLoggedUsuario();
         Rol rolUsuario = this.rolService.getLoggedUsuarioRol();
         ProyectoFilter filter = new ProyectoFilter();
+        filter.setNombreEstudiante(nombre);
+        filter.setRegistroEstudiante(registroAcademico);
         if (Objects.equals(rolUsuario.getIdRol(), RolUtils.ID_ROL_ESTUDIANTE)) {
             filter.setRegistroEstudiante(usuario.getRegistroAcademico());
             Specification<Proyecto> spec = ProyectoSpecification.filterBy(filter);
             return proyectoRepository.findAll(spec, pageable);
-        } else if (Objects.equals(rolUsuario.getIdRol(), RolUtils.ID_ROL_SECRETARIA)
-                || Objects.equals(rolUsuario.getIdRol(), RolUtils.ID_ROL_SUPERVISOR)
-                || Objects.equals(rolUsuario.getIdRol(), RolUtils.ID_ROL_ASESOR)
-                || Objects.equals(rolUsuario.getIdRol(), RolUtils.ID_ROL_COORDINADOR_CARRERA)
+        } else if (Objects.equals(rolUsuario.getIdRol(), RolUtils.ID_ROL_ASESOR)
                 || Objects.equals(rolUsuario.getIdRol(), RolUtils.ID_ROL_CONTRAPARTE)) {
             filter.setIdUsuarioAsignado(usuario.getIdUsuario());
             Specification<Proyecto> spec = ProyectoSpecification.filterBy(filter);
             return proyectoRepository.findAll(spec, pageable);
-        } else if (Objects.equals(rolUsuario.getIdRol(), RolUtils.ID_ROL_COORDINADOR_EPS)) {
+        } else if (Objects.equals(rolUsuario.getIdRol(), RolUtils.ID_ROL_COORDINADOR_EPS)
+                || Objects.equals(rolUsuario.getIdRol(), RolUtils.ID_ROL_SECRETARIA)) {
             Specification<Proyecto> spec = ProyectoSpecification.filterBy(filter);
             return proyectoRepository.findAll(spec, pageable);
+        } else if (Objects.equals(rolUsuario.getIdRol(), RolUtils.ID_ROL_SUPERVISOR)
+                || Objects.equals(rolUsuario.getIdRol(), RolUtils.ID_ROL_COORDINADOR_CARRERA)) {
+            Carrera carrera = this.carreraService.getCarrerasUsuario(usuario.getIdUsuario()).get(0).getIdCarreraFk();
+            return proyectoRepository.findProyectos(nombre, registroAcademico, usuario.getIdUsuario(), carrera.getIdCarrera(), Boolean.TRUE, pageable);
         } else {
             throw new Exception("Sin permisos para ver proyecto");
         }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Proyecto finalizarProyecto(Integer idProyecto,
+            ComentarioDto comentario) throws Exception {
+        Proyecto proyecto = getProyecto(idProyecto);
+        Usuario usuario = this.usuarioService.getLoggedUsuario();
+        Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
+        if (!supervisor.equals(usuario)) {
+            throw new Exception("Usuario no tiene permisos para finalizar el proyecto");
+        }
+        this.comentarioService.crearComentario(idProyecto, comentario);
+        proyecto.setActivo(Boolean.FALSE);
+        this.notificacionService.notificarFinalizacionProyecto(proyecto.getIdUsuarioFk(), proyecto, comentario);
+        return this.proyectoRepository.save(proyecto);
     }
 
     @Override
@@ -184,10 +196,28 @@ public class ProyectoServiceImp implements ProyectoService {
         this.etapaService.finalizarEtapaProyecto(etapaProyectoActiva);
         EtapaProyecto etapaProyectoNueva = this.etapaService.getEtapaProyecto(proyecto.getIdProyecto(), idEtapaNueva);
         if (etapaProyectoNueva != null) {
-            return etapaService.activarEtapaProyecto(etapaProyectoNueva);
+            etapaProyectoNueva = etapaService.activarEtapaProyecto(etapaProyectoNueva);
         } else {
-            return this.etapaService.crearEtapaProyecto(idEtapaNueva, proyecto);
+            etapaProyectoNueva = this.etapaService.crearEtapaProyecto(idEtapaNueva, proyecto);
         }
+        if (etapaProyectoNueva.getIdEtapaFk() != null) {
+            if (etapaProyectoNueva.getIdEtapaFk().getIdRolFk() != null && !etapaProyectoNueva.getIdEtapaFk().getIdRolFk().getIdRol().equals(RolUtils.ID_ROL_ESTUDIANTE)) {
+                if (etapaProyectoNueva.getIdEtapaFk().getIdRolFk().getIdRol().equals(RolUtils.ID_ROL_SUPERVISOR)) {
+                    Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
+                    this.notificacionService.notificarEtapaNuevo(supervisor, etapaProyectoNueva);
+                }
+                if (etapaProyectoNueva.getIdEtapaFk().getIdRolFk().getIdRol().equals(RolUtils.ID_ROL_COORDINADOR_EPS)) {
+                    Usuario coordinadorEps = this.usuarioProyectoService.getCoordinadorEpsDisponible();
+                    this.notificacionService.notificarEtapaNuevo(coordinadorEps, etapaProyectoNueva);
+                }
+                if (etapaProyectoNueva.getIdEtapaFk().getIdRolFk().getIdRol().equals(RolUtils.ID_ROL_SECRETARIA)) {
+                    Usuario secretaria = this.usuarioProyectoService.getSecretariaDisponible();
+                    this.notificacionService.notificarEtapaNuevo(secretaria, etapaProyectoNueva);
+                }
+            }
+            this.notificacionService.notificarEtapaNuevo(proyecto.getIdUsuarioFk(), etapaProyectoNueva);
+        }
+        return etapaProyectoNueva;
     }
 
     private UsuarioProyecto asignarSecretaria(Proyecto proyecto) throws Exception {
@@ -208,12 +238,19 @@ public class ProyectoServiceImp implements ProyectoService {
         switch (etapaProyectoActiva.getIdEtapaFk().getIdEtapa()) {
             case EtapaUtils.ID_ETAPA_CREACION_PROYECTO -> {
                 crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_REVISION_SECRETARIA);
-                asignarSecretaria(proyecto);
+                Usuario secretaria = this.usuarioProyectoService.getSecretariaDisponible();
+                this.notificacionService.notificarSolicitudRevision(secretaria, proyecto);
             }
-            case EtapaUtils.ID_ETAPA_REVISION_SECRETARIA ->
+            case EtapaUtils.ID_ETAPA_REVISION_SECRETARIA -> {
                 this.etapaService.activarModoRevision(etapaProyectoActiva);
-            case EtapaUtils.ID_ETAPA_REVISION_SUPERVISOR ->
+                Usuario secretaria = this.usuarioProyectoService.getSecretariaDisponible();
+                this.notificacionService.notificarSolicitudRevision(secretaria, proyecto);
+            }
+            case EtapaUtils.ID_ETAPA_REVISION_SUPERVISOR, EtapaUtils.ID_ETAPA_REVISION_INFORME_FINAL -> {
                 this.etapaService.activarModoRevision(etapaProyectoActiva);
+                Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
+                this.notificacionService.notificarSolicitudRevision(supervisor, proyecto);
+            }
             case EtapaUtils.ID_ETAPA_HABILITACION_BITACORA ->
                 this.etapaService.activarModoRevision(etapaProyectoActiva);
             default ->
@@ -225,21 +262,24 @@ public class ProyectoServiceImp implements ProyectoService {
     @Transactional(rollbackFor = Exception.class)
     public Comentario solicitarCambios(Integer idProyecto, ComentarioDto comentarioDto) throws Exception {
         Usuario usuario = this.usuarioService.getLoggedUsuario();
+        Proyecto proyecto = this.getProyecto(idProyecto);
         EtapaProyecto etapaProyectoActiva = this.etapaService.getEtapaProyectoActivo(idProyecto);
         switch (etapaProyectoActiva.getIdEtapaFk().getIdEtapa()) {
             case EtapaUtils.ID_ETAPA_REVISION_SECRETARIA -> {
-                UsuarioProyecto secretariaProyecto = this.usuarioProyectoService.getSecretariaProyecto(idProyecto);
-                if (!usuario.equals(secretariaProyecto.getIdUsuarioFk())) {
+                Usuario secretaria = this.usuarioProyectoService.getSecretariaDisponible();
+                if (!secretaria.equals(usuario)) {
                     throw new Exception("No tiene permisos para solicitar cambios");
                 }
-                return solicitarCambios(etapaProyectoActiva, comentarioDto, usuario, secretariaProyecto.getIdRolFk());
+                this.notificacionService.notificarSolicitudCambios(usuario, proyecto, comentarioDto);
+                return solicitarCambios(etapaProyectoActiva, comentarioDto, usuario, this.rolService.getRol(RolUtils.ID_ROL_SECRETARIA));
             }
-            case EtapaUtils.ID_ETAPA_REVISION_SUPERVISOR -> {
-                UsuarioProyecto supervisorProyecto = this.usuarioProyectoService.getSupervisorProyecto(idProyecto);
-                if (!usuario.equals(supervisorProyecto.getIdUsuarioFk())) {
+            case EtapaUtils.ID_ETAPA_REVISION_SUPERVISOR, EtapaUtils.ID_ETAPA_REVISION_INFORME_FINAL -> {
+                Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
+                if (!supervisor.equals(usuario)) {
                     throw new Exception("No tiene permisos para solicitar cambios");
                 }
-                return solicitarCambios(etapaProyectoActiva, comentarioDto, usuario, supervisorProyecto.getIdRolFk());
+                this.notificacionService.notificarSolicitudCambios(usuario, proyecto, comentarioDto);
+                return solicitarCambios(etapaProyectoActiva, comentarioDto, usuario, this.rolService.getRol(RolUtils.ID_ROL_SUPERVISOR));
             }
             default ->
                 throw new Exception("No se puede solicitar cambios en esta etapa");
@@ -256,17 +296,18 @@ public class ProyectoServiceImp implements ProyectoService {
     @Transactional(rollbackFor = Exception.class)
     public void aprobarProyectoSecretaria(Integer idProyecto) throws Exception {
         Usuario usuario = this.usuarioService.getLoggedUsuario();
-        UsuarioProyecto secretariaProyecto = this.usuarioProyectoService.getSecretariaProyecto(idProyecto);
+        Usuario secretaria = this.usuarioProyectoService.getSecretariaDisponible();
         EtapaProyecto etapaProyectoActiva = this.etapaService.getEtapaProyectoActivo(idProyecto);
         Proyecto proyecto = this.getProyecto(idProyecto);
-        if (!secretariaProyecto.getIdUsuarioFk().equals(usuario)) {
+        if (!secretaria.equals(usuario)) {
             throw new Exception("No tiene permisos para aprobar proyecto");
         }
         if (!etapaProyectoActiva.getIdEtapaFk().getIdEtapa().equals(EtapaUtils.ID_ETAPA_REVISION_SECRETARIA)) {
             throw new Exception("No se puede aprobar proyecto en esta etapa del proyecto");
         }
-        asignarSupervisor(proyecto);
         crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_REVISION_SUPERVISOR);
+        Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
+        this.notificacionService.notificarSolicitudRevision(supervisor, proyecto);
     }
 
     private UsuarioProyecto asignarSupervisor(Proyecto proyecto) throws Exception {
@@ -275,40 +316,58 @@ public class ProyectoServiceImp implements ProyectoService {
         return this.usuarioProyectoService.crearUsuarioProyecto(supervisor, proyecto, rol);
     }
 
-    private UsuarioProyecto asignarCoordinadorCarrera(Proyecto proyecto) throws Exception {
+    /*private UsuarioProyecto asignarCoordinadorCarrera(Proyecto proyecto) throws Exception {
         Usuario coordinadorCarrera = this.usuarioProyectoService.getCoordinadorCarreraDisponible(proyecto.getIdCarreraFk().getIdCarrera());
         Rol rol = this.rolService.getRol(RolUtils.ID_ROL_COORDINADOR_CARRERA);
         return this.usuarioProyectoService.crearUsuarioProyecto(coordinadorCarrera, proyecto, rol);
-    }
-
+    }*/
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void aprobarProyectoSupervisor(Integer idProyecto, UsuarioDto asesorDto) throws Exception {
-        Usuario usuario = this.usuarioService.getLoggedUsuario();
-        UsuarioProyecto supervisorProyecto = this.usuarioProyectoService.getSupervisorProyecto(idProyecto);
-        EtapaProyecto etapaProyectoActiva = this.etapaService.getEtapaProyectoActivo(idProyecto);
         Proyecto proyecto = this.getProyecto(idProyecto);
-        if (!supervisorProyecto.getIdUsuarioFk().equals(usuario)) {
+        Usuario usuario = this.usuarioService.getLoggedUsuario();
+        Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
+        EtapaProyecto etapaProyectoActiva = this.etapaService.getEtapaProyectoActivo(idProyecto);
+        if (!supervisor.equals(usuario)) {
             throw new Exception("No tiene permisos para aprobar proyecto");
         }
         if (!etapaProyectoActiva.getIdEtapaFk().getIdEtapa().equals(EtapaUtils.ID_ETAPA_REVISION_SUPERVISOR)) {
             throw new Exception("No se puede aprobar proyecto en esta etapa del proyecto");
         }
-        asignarCoordinadorCarrera(proyecto);
         asignarAsesor(proyecto, asesorDto);
         crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_CONVOCATORIA_ANTEPROYECTO);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void aprobarInformeFinalSupervisor(Integer idProyecto) throws Exception {
+        Proyecto proyecto = this.getProyecto(idProyecto);
+        Usuario usuario = this.usuarioService.getLoggedUsuario();
+        Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
+        EtapaProyecto etapaProyectoActiva = this.etapaService.getEtapaProyectoActivo(idProyecto);
+        if (!supervisor.equals(usuario)) {
+            throw new Exception("No tiene permisos para aprobar informe final");
+        }
+        if (!etapaProyectoActiva.getIdEtapaFk().getIdEtapa().equals(EtapaUtils.ID_ETAPA_REVISION_INFORME_FINAL)) {
+            throw new Exception("No se puede aprobar proyecto en esta etapa del proyecto");
+        }
+        EtapaProyecto etapa = crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_REVISION_LINGUISTICA);
+        etapa.setEditable(Boolean.TRUE);
+        this.etapaService.saveEtapaProyecto(etapa);
     }
 
     private UsuarioProyecto asignarAsesor(Proyecto proyecto, UsuarioDto asesorDto) throws Exception {
         Usuario asesor = this.usuarioService.getUsuario(asesorDto.getIdUsuario());
         Rol rol = this.rolService.getRol(RolUtils.ID_ROL_ASESOR);
+        this.notificacionService.notificarAsignacionUsuarioProyecto(asesor, rol, proyecto);
         return this.usuarioProyectoService.crearUsuarioProyecto(asesor, proyecto, rol);
     }
 
-    private UsuarioProyecto asignarContraparte(Proyecto proyecto, UsuarioDto asesorDto) throws Exception {
-        Usuario asesor = this.usuarioService.getUsuario(asesorDto.getIdUsuario());
+    private UsuarioProyecto asignarContraparte(Proyecto proyecto, UsuarioDto contraparteDto) throws Exception {
+        Usuario contraparte = this.usuarioService.getUsuario(contraparteDto.getIdUsuario());
         Rol rol = this.rolService.getRol(RolUtils.ID_ROL_CONTRAPARTE);
-        return this.usuarioProyectoService.crearUsuarioProyecto(asesor, proyecto, rol);
+        this.notificacionService.notificarAsignacionUsuarioProyecto(contraparte, rol, proyecto);
+        return this.usuarioProyectoService.crearUsuarioProyecto(contraparte, proyecto, rol);
     }
 
     @Override
@@ -318,14 +377,19 @@ public class ProyectoServiceImp implements ProyectoService {
     }
 
     @Override
+    public Convocatoria getConvocatoriaExamenGeneral(Integer idProyecto) throws Exception {
+        Proyecto proyecto = getProyecto(idProyecto);
+        return this.convocatoriaService.getConvocatoriaExamenGeneral(proyecto);
+    }
+
+    @Override
     @Transactional(rollbackFor = Exception.class)
     public void crearConvocatoriaAnteproyecto(Integer idProyecto, ConvocatoriaDto convocatoriaDto) throws Exception {
-        System.out.println("crear");
         Proyecto proyecto = getProyecto(idProyecto);
         Usuario usuario = this.usuarioService.getLoggedUsuario();
-        UsuarioProyecto supervisroProyecto = this.usuarioProyectoService.getSupervisorProyecto(idProyecto);
+        Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
         EtapaProyecto etapaProyectoActiva = this.etapaService.getEtapaProyectoActivo(idProyecto);
-        if (!supervisroProyecto.getIdUsuarioFk().equals(usuario)) {
+        if (!supervisor.equals(usuario)) {
             throw new Exception("No tiene permisos para definir fecha de evaluacion");
         }
         switch (etapaProyectoActiva.getIdEtapaFk().getIdEtapa()) {
@@ -333,7 +397,7 @@ public class ProyectoServiceImp implements ProyectoService {
                 this.convocatoriaService.generarConvocatoriaAnteproyecto(proyecto, convocatoriaDto);
                 crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_CARGA_CONVOCATORIA_ANTEPROYECTO);
             }
-            case EtapaUtils.ID_ETAPA_CONVOCATORIA_EXAMEN_GENERAL ->{
+            case EtapaUtils.ID_ETAPA_CONVOCATORIA_EXAMEN_GENERAL -> {
                 this.convocatoriaService.generarConvocatoriaExamenGeneral(proyecto, convocatoriaDto);
                 crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_CARGA_CONVOCATORIA_EXAMEN_GENERAL);
             }
@@ -345,18 +409,15 @@ public class ProyectoServiceImp implements ProyectoService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void actualizarConvocatoriaAnteproyecto(Integer idProyecto, ConvocatoriaDto convocatoriaDto) throws Exception {
-        System.out.println("actualizar");
         Proyecto proyecto = getProyecto(idProyecto);
         Usuario usuario = this.usuarioService.getLoggedUsuario();
-        UsuarioProyecto supervisorProyecto = this.usuarioProyectoService.getSupervisorProyecto(idProyecto);
+        Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
         EtapaProyecto etapaProyectoActiva = this.etapaService.getEtapaProyectoActivo(idProyecto);
-        if (!supervisorProyecto.getIdUsuarioFk().equals(usuario)) {
+        if (!supervisor.equals(usuario)) {
             throw new Exception("No tiene permisos para definir fecha de evaluacion");
         }
-        System.out.println("etapa: " + etapaProyectoActiva.getIdEtapaFk().getIdEtapa());
         switch (etapaProyectoActiva.getIdEtapaFk().getIdEtapa()) {
             case EtapaUtils.ID_ETAPA_CARGA_CONVOCATORIA_ANTEPROYECTO, EtapaUtils.ID_ETAPA_EVALUACION_ANTEPROYECTO -> {
-                System.out.println("anteproyecto");
                 EtapaProyecto etapaProyectoCargar = this.etapaService.getEtapaProyecto(idProyecto, EtapaUtils.ID_ETAPA_CARGA_CONVOCATORIA_ANTEPROYECTO);
                 this.convocatoriaService.actualizarConvocatoriaAnteproyecto(proyecto, convocatoriaDto);
                 this.etapaService.desactivarEtapaProyecto(etapaProyectoActiva);
@@ -364,11 +425,9 @@ public class ProyectoServiceImp implements ProyectoService {
                 crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_CARGA_CONVOCATORIA_ANTEPROYECTO);
             }
             case EtapaUtils.ID_ETAPA_CARGA_CONVOCATORIA_EXAMEN_GENERAL, EtapaUtils.ID_ETAPA_EXAMEN_GENERAL -> {
-                System.out.println("examen general");
                 EtapaProyecto etapaProyectoCargar = this.etapaService.getEtapaProyecto(idProyecto, EtapaUtils.ID_ETAPA_CARGA_CONVOCATORIA_EXAMEN_GENERAL);
                 this.convocatoriaService.actualizarConvocatoriaExamenGeneral(proyecto, convocatoriaDto);
                 this.etapaService.desactivarEtapaProyecto(etapaProyectoActiva);
-                System.out.println("etapa: " + etapaProyectoCargar.getIdEtapaFk().getIdEtapa());
                 this.etapaService.activarEtapaProyecto(etapaProyectoCargar);
             }
             default ->
@@ -390,6 +449,11 @@ public class ProyectoServiceImp implements ProyectoService {
             case EtapaUtils.ID_ETAPA_CARGA_CONVOCATORIA_ANTEPROYECTO -> {
                 this.convocatoriaService.cargarConvocatoria(proyecto, convocatoria);
                 crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_EVALUACION_ANTEPROYECTO);
+                /*
+                EtapaProyecto etapa = 
+                etapa.setEditable(Boolean.TRUE);
+                this.etapaService.saveEtapaProyecto(etapa);
+                 */
             }
             case EtapaUtils.ID_ETAPA_CARGA_CONVOCATORIA_EXAMEN_GENERAL -> {
                 this.convocatoriaService.cargarConvocatoriaExamenGeneral(proyecto, convocatoria);
@@ -419,7 +483,7 @@ public class ProyectoServiceImp implements ProyectoService {
     }
 
     private void cargarCartaAceptacionContraparte(Proyecto proyecto, MultipartFile file) throws Exception {
-        Elemento elemento = this.elementoService.getElemento(ID_ELEMENTO_CARTA_ACEPTACION_CONTRAPARTE);
+        Elemento elemento = this.elementoService.getElemento(ElementoUtils.ID_ELEMENTO_CARTA_ACEPTACION_CONTRAPARTE);
         EtapaProyecto etapaProyecto = this.etapaService.getEtapaProyecto(proyecto.getIdProyecto(),
                 EtapaUtils.ID_ETAPA_CARGA_CARTA_ACEPTACION_CONTRAPARTE);
         ElementoProyecto elementoConvocatoria = this.elementoService.crearElementoProyecto(proyecto, elemento,
@@ -433,21 +497,54 @@ public class ProyectoServiceImp implements ProyectoService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Acta crearActaAnteproyecto(Integer idProyecto, ActaDto actaDto) throws Exception {
+    public Acta crearActa(Integer idProyecto, ActaDto actaDto) throws Exception {
         Usuario usuario = this.usuarioService.getLoggedUsuario();
         Proyecto proyecto = getProyecto(idProyecto);
         EtapaProyecto etapaProyectoActiva = this.etapaService.getEtapaProyectoActivo(idProyecto);
-        UsuarioProyecto supervisorProyecto = this.usuarioProyectoService.getSupervisorProyecto(idProyecto);
-        if (!supervisorProyecto.getIdUsuarioFk().equals(usuario)) {
-            throw new Exception("No tiene permisos para crear acta");
+        switch (etapaProyectoActiva.getIdEtapaFk().getIdEtapa()) {
+            case EtapaUtils.ID_ETAPA_EVALUACION_ANTEPROYECTO -> {
+                Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
+                if (!supervisor.equals(usuario)) {
+                    throw new Exception("No tiene permisos para crear acta");
+                }
+                EtapaProyecto etapa = crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_CARGA_CARTA_ACEPTACION_CONTRAPARTE);
+                this.etapaService.saveEtapaProyecto(etapa);
+                if (actaDto.getResultado().equals("RECHAZADO")) {
+                    proyecto.setActivo(Boolean.FALSE);
+                    this.proyectoRepository.save(proyecto);
+                } else {
+                    etapa.setEditable(Boolean.TRUE);
+                }
+                return this.actaService.crearActaAnteproyecto(proyecto, actaDto);
+            }
+            case EtapaUtils.ID_ETAPA_EXAMEN_GENERAL -> {
+                Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
+                if (!supervisor.equals(usuario)) {
+                    throw new Exception("No tiene permisos para crear acta");
+                }
+                EtapaProyecto etapa = crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_REDACCION_ARTICULO);
+                if (actaDto.getResultado().equals("RECHAZADO")) {
+                    proyecto.setActivo(Boolean.FALSE);
+                    this.proyectoRepository.save(proyecto);
+                } else {
+                    etapa.setEditable(Boolean.TRUE);
+                }
+                this.etapaService.saveEtapaProyecto(etapa);
+                return this.actaService.crearActaExamenGeneral(proyecto, actaDto);
+            }
+            case EtapaUtils.ID_ETAPA_ACTA_FINALIZACION -> {
+                Usuario coordinadorEps = this.usuarioProyectoService.getCoordinadorEpsDisponible();
+                if (!coordinadorEps.equals(usuario)) {
+                    throw new Exception("No tiene permisos para crear acta");
+                }
+                crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_FINALIZADO);
+                proyecto.setActivo(Boolean.FALSE);
+                this.proyectoRepository.save(proyecto);
+                return this.actaService.crearActaFinalizacion(proyecto, actaDto);
+            }
+            default ->
+                throw new Exception("No se puede crear acta en esta etapa del proyecto.");
         }
-        if (!etapaProyectoActiva.getIdEtapaFk().getIdEtapa().equals(EtapaUtils.ID_ETAPA_EVALUACION_ANTEPROYECTO)) {
-            throw new Exception("No se puede crear acta en esta etapa del proyecto.");
-        }
-        EtapaProyecto etapa = crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_CARGA_CARTA_ACEPTACION_CONTRAPARTE);
-        etapa.setEditable(Boolean.TRUE);
-        this.etapaService.saveEtapaProyecto(etapa);
-        return this.actaService.crearActaAnteproyecto(proyecto, actaDto);
     }
 
     @Override
@@ -458,9 +555,35 @@ public class ProyectoServiceImp implements ProyectoService {
     }
 
     @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Acta generarActaExamenGeneral(Integer idProyecto, ActaDto actaDto) throws Exception {
+        Proyecto proyecto = getProyecto(idProyecto);
+        return this.actaService.generarActaExamenGeneral(proyecto, actaDto);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public Acta generarActaAprobacion(Integer idProyecto, ActaDto actaDto) throws Exception {
+        Proyecto proyecto = getProyecto(idProyecto);
+        return this.actaService.generarActaAprobacion(proyecto, actaDto);
+    }
+
+    @Override
     public Acta getActaAnteproyecto(Integer idProyecto) throws Exception {
         Proyecto proyecto = getProyecto(idProyecto);
         return this.actaService.getActaAnteproyecto(proyecto);
+    }
+
+    @Override
+    public Acta getActaExamenGeneral(Integer idProyecto) throws Exception {
+        Proyecto proyecto = getProyecto(idProyecto);
+        return this.actaService.getActaExamenGeneral(proyecto);
+    }
+
+    @Override
+    public Acta getActaAprobacion(Integer idProyecto) throws Exception {
+        Proyecto proyecto = getProyecto(idProyecto);
+        return this.actaService.getActaAprobacion(proyecto);
     }
 
     @Override
@@ -469,8 +592,8 @@ public class ProyectoServiceImp implements ProyectoService {
         Usuario usuario = this.usuarioService.getLoggedUsuario();
         Proyecto proyecto = getProyecto(idProyecto);
         EtapaProyecto etapaProyectoActiva = this.etapaService.getEtapaProyectoActivo(idProyecto);
-        UsuarioProyecto supervisorProyecto = this.usuarioProyectoService.getSupervisorProyecto(idProyecto);
-        if (!supervisorProyecto.getIdUsuarioFk().equals(usuario)) {
+        Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
+        if (!supervisor.equals(usuario)) {
             throw new Exception("No tiene permisos para habilitar bitacora");
         }
         if (!etapaProyectoActiva.getIdEtapaFk().getIdEtapa().equals(EtapaUtils.ID_ETAPA_HABILITACION_BITACORA)) {
@@ -506,7 +629,7 @@ public class ProyectoServiceImp implements ProyectoService {
         return this.personaService.crearPersona(usuarioDto, proyecto, RolUtils.ROL_ASESOR_TECNICO);
     }
 
-    @Override
+    /*@Override
     public Usuario actualizarSupervisor(Integer idProyecto, UsuarioDto usuarioDto) throws Exception {
         Usuario usuario = this.usuarioService.getLoggedUsuario();
         Usuario coordinadorEps = this.usuarioProyectoService.getCoordinadorEpsDisponible();
@@ -517,16 +640,15 @@ public class ProyectoServiceImp implements ProyectoService {
         }
         UsuarioProyecto supervisorProyecto = this.usuarioProyectoService.actualizarSupervisorProyecto(proyecto, supervisor);
         return supervisorProyecto.getIdUsuarioFk();
-    }
-
+    }*/
     @Override
     public Usuario actualizarAsesor(Integer idProyecto, UsuarioDto usuarioDto) throws Exception {
-        Usuario usuario = this.usuarioService.getLoggedUsuario();
-        Usuario coordinadorEps = this.usuarioProyectoService.getCoordinadorEpsDisponible();
-        UsuarioProyecto supervisorProyecto = this.usuarioProyectoService.getSupervisorProyecto(idProyecto);
-        Usuario asesor = this.usuarioService.getUsuario(usuarioDto.getIdUsuario());
         Proyecto proyecto = getProyecto(idProyecto);
-        if (!coordinadorEps.equals(usuario) && !supervisorProyecto.getIdUsuarioFk().equals(usuario)) {
+        Usuario usuario = this.usuarioService.getLoggedUsuario();
+        //Usuario coordinadorEps = this.usuarioProyectoService.getCoordinadorEpsDisponible();
+        Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
+        Usuario asesor = this.usuarioService.getUsuario(usuarioDto.getIdUsuario());
+        if (!supervisor.equals(usuario)) {
             throw new Exception("No tiene permisos para cambiar asesor");
         }
         UsuarioProyecto asesorProyecto = this.usuarioProyectoService.actualizarAsesorProyecto(proyecto, asesor);
@@ -535,12 +657,12 @@ public class ProyectoServiceImp implements ProyectoService {
 
     @Override
     public Usuario actualizarContraparte(Integer idProyecto, UsuarioDto usuarioDto) throws Exception {
-        Usuario usuario = this.usuarioService.getLoggedUsuario();
-        Usuario coordinadorEps = this.usuarioProyectoService.getCoordinadorEpsDisponible();
-        UsuarioProyecto supervisorProyecto = this.usuarioProyectoService.getSupervisorProyecto(idProyecto);
-        Usuario contraparte = this.usuarioService.getUsuario(usuarioDto.getIdUsuario());
         Proyecto proyecto = getProyecto(idProyecto);
-        if (!coordinadorEps.equals(usuario) && !supervisorProyecto.getIdUsuarioFk().equals(usuario)) {
+        Usuario usuario = this.usuarioService.getLoggedUsuario();
+        //Usuario coordinadorEps = this.usuarioProyectoService.getCoordinadorEpsDisponible();
+        Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
+        Usuario contraparte = this.usuarioService.getUsuario(usuarioDto.getIdUsuario());
+        if (!supervisor.equals(usuario)) {
             throw new Exception("No tiene permisos para cambiar contraparte");
         }
         UsuarioProyecto contraparteProyecto = this.usuarioProyectoService.actualizarContraparteProyecto(proyecto, contraparte);
@@ -550,7 +672,7 @@ public class ProyectoServiceImp implements ProyectoService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void finalizarBitacora(Integer idProyecto, MultipartFile cartaAsesor,
-            MultipartFile finiquitoContraparte, MultipartFile informeFinal) throws Exception {
+            MultipartFile finiquitoContraparte) throws Exception {
         Usuario usuario = this.usuarioService.getLoggedUsuario();
         Proyecto proyecto = getProyecto(idProyecto);
         EtapaProyecto etapaProyectoActiva = this.etapaService.getEtapaProyectoActivo(idProyecto);
@@ -560,8 +682,121 @@ public class ProyectoServiceImp implements ProyectoService {
         if (!etapaProyectoActiva.getIdEtapaFk().getIdEtapa().equals(EtapaUtils.ID_ETAPA_BITACORA)) {
             throw new Exception("No se puede realizar esta accion en esta etapa del proyecto");
         }
-        this.bitacoraService.finalizarBitacora(proyecto, cartaAsesor, finiquitoContraparte, informeFinal);
-        crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_CONVOCATORIA_EXAMEN_GENERAL);
+        this.bitacoraService.finalizarBitacora(proyecto, cartaAsesor, finiquitoContraparte);
+        crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_APROBACION_BITACORA);
+    }
 
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void aprobarBitacora(Integer idProyecto) throws Exception {
+        Proyecto proyecto = getProyecto(idProyecto);
+        Usuario usuario = this.usuarioService.getLoggedUsuario();
+        Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
+        EtapaProyecto etapaProyectoActiva = this.etapaService.getEtapaProyectoActivo(idProyecto);
+        if (!supervisor.equals(usuario)) {
+            throw new Exception("Sin permisos para realizar esta accion");
+        }
+        if (!etapaProyectoActiva.getIdEtapaFk().getIdEtapa().equals(EtapaUtils.ID_ETAPA_APROBACION_BITACORA)) {
+            throw new Exception("No se puede realizar esta accion en esta etapa del proyecto");
+        }
+        crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_CARGA_INFORME_FINAL);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void rechazarBitacora(Integer idProyecto) throws Exception {
+        Proyecto proyecto = getProyecto(idProyecto);
+        Usuario usuario = this.usuarioService.getLoggedUsuario();
+        Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
+        EtapaProyecto etapaProyectoActiva = this.etapaService.getEtapaProyectoActivo(idProyecto);
+        if (!supervisor.equals(usuario)) {
+            throw new Exception("Sin permisos para realizar esta accion");
+        }
+        if (!etapaProyectoActiva.getIdEtapaFk().getIdEtapa().equals(EtapaUtils.ID_ETAPA_APROBACION_BITACORA)) {
+            throw new Exception("No se puede realizar esta accion en esta etapa del proyecto");
+        }
+        crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_BITACORA);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void cargarInformeFinal(Integer idProyecto, MultipartFile informeFinal) throws Exception {
+        Usuario usuario = this.usuarioService.getLoggedUsuario();
+        Proyecto proyecto = getProyecto(idProyecto);
+        EtapaProyecto etapaProyectoActiva = this.etapaService.getEtapaProyectoActivo(idProyecto);
+        if (!proyecto.getIdUsuarioFk().equals(usuario)) {
+            throw new Exception("Sin permisos para realizar esta accion");
+        }
+        if (!etapaProyectoActiva.getIdEtapaFk().getIdEtapa().equals(EtapaUtils.ID_ETAPA_CARGA_INFORME_FINAL)) {
+            throw new Exception("No se puede realizar esta accion en esta etapa del proyecto");
+        }
+        cargarElementoProyecto(proyecto, informeFinal, ElementoUtils.ID_ELEMENTO_INFORME_FINAL, EtapaUtils.ID_ETAPA_CARGA_INFORME_FINAL);
+        crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_CONVOCATORIA_EXAMEN_GENERAL);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void cargarArticulo(Integer idProyecto, MultipartFile articulo,
+            MultipartFile traduccionArticulo) throws Exception {
+        Usuario usuario = this.usuarioService.getLoggedUsuario();
+        Proyecto proyecto = getProyecto(idProyecto);
+        EtapaProyecto etapaProyectoActiva = this.etapaService.getEtapaProyectoActivo(idProyecto);
+        if (!proyecto.getIdUsuarioFk().equals(usuario)) {
+            throw new Exception("Sin permisos para realizar esta accion");
+        }
+        if (!etapaProyectoActiva.getIdEtapaFk().getIdEtapa().equals(EtapaUtils.ID_ETAPA_REDACCION_ARTICULO)) {
+            throw new Exception("No se puede realizar esta accion en esta etapa del proyecto");
+        }
+        cargarElementoProyecto(proyecto, articulo, ElementoUtils.ID_ELEMENTO_ARTICULO, EtapaUtils.ID_ETAPA_REDACCION_ARTICULO);
+        cargarElementoProyecto(proyecto, traduccionArticulo, ElementoUtils.ID_ELEMENTO_TRADUCCION_ARTICULO, EtapaUtils.ID_ETAPA_REDACCION_ARTICULO);
+        EtapaProyecto etapa = crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_REVISION_INFORME_FINAL);
+        etapa.setEditable(Boolean.TRUE);
+        this.etapaService.saveEtapaProyecto(etapa);
+    }
+
+    private ElementoProyecto cargarElementoProyecto(Proyecto proyecto, MultipartFile file, Integer idElemento, Integer idEtapa) throws Exception {
+        Elemento elemento = this.elementoService.getElemento(idElemento);
+        EtapaProyecto etapaProyecto = this.etapaService.getEtapaProyecto(proyecto.getIdProyecto(), idEtapa);
+        ElementoProyecto elementoProyecto = this.elementoService.crearElementoProyecto(proyecto, elemento,
+                etapaProyecto, file);
+        return elementoProyecto;
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void cargarConstanciaLinguistica(Integer idProyecto, MultipartFile constanciaLinguistica) throws Exception {
+        Usuario usuario = this.usuarioService.getLoggedUsuario();
+        Proyecto proyecto = getProyecto(idProyecto);
+        EtapaProyecto etapaProyectoActiva = this.etapaService.getEtapaProyectoActivo(idProyecto);
+        if (!proyecto.getIdUsuarioFk().equals(usuario)) {
+            throw new Exception("Sin permisos para realizar esta accion");
+        }
+        if (!etapaProyectoActiva.getIdEtapaFk().getIdEtapa().equals(EtapaUtils.ID_ETAPA_REVISION_LINGUISTICA)) {
+            System.out.println("etapa db: " + etapaProyectoActiva.getIdEtapaFk().getIdEtapa());
+            System.out.println("etapa cons: " + EtapaUtils.ID_ETAPA_DICTAMEN_REVISION);
+
+            throw new Exception("No se puede realizar esta accion en esta etapa del proyecto");
+        }
+        cargarElementoProyecto(proyecto, constanciaLinguistica, ElementoUtils.ID_ELEMENTO_CONSTANCIA_LINGUISTICA, EtapaUtils.ID_ETAPA_REVISION_LINGUISTICA);
+        crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_DICTAMEN_REVISION);
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void cargarDictamenRevsion(Integer idProyecto, MultipartFile dictamenRevision,
+            MultipartFile cartaRevision) throws Exception {
+        Usuario usuario = this.usuarioService.getLoggedUsuario();
+        Proyecto proyecto = getProyecto(idProyecto);
+        Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
+        EtapaProyecto etapaProyectoActiva = this.etapaService.getEtapaProyectoActivo(idProyecto);
+        if (!supervisor.equals(usuario)) {
+            throw new Exception("Sin permisos para realizar esta accion");
+        }
+        if (!etapaProyectoActiva.getIdEtapaFk().getIdEtapa().equals(EtapaUtils.ID_ETAPA_DICTAMEN_REVISION)) {
+            throw new Exception("No se puede realizar esta accion en esta etapa del proyecto");
+        }
+        cargarElementoProyecto(proyecto, dictamenRevision, ElementoUtils.ID_ELEMENTO_DICTAMEN_REVISION, EtapaUtils.ID_ETAPA_DICTAMEN_REVISION);
+        cargarElementoProyecto(proyecto, cartaRevision, ElementoUtils.ID_ELEMENTO_CARTA_REVISION, EtapaUtils.ID_ETAPA_DICTAMEN_REVISION);
+        crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_ACTA_FINALIZACION);
     }
 }

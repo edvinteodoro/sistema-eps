@@ -51,7 +51,7 @@ public class UsuarioProyectoServiceImp implements UsuarioProyectoService {
         Usuario tempUsuario = null;
         for (Usuario usuario : usuarios) {
             Integer temp = this.usuarioProyectoRepository.getCantidadProyectos(usuario.getIdUsuario(), Boolean.TRUE);
-            if (cantidad > temp || tempUsuario==null) {
+            if (cantidad > temp || tempUsuario == null) {
                 cantidad = temp;
                 tempUsuario = usuario;
             }
@@ -70,7 +70,7 @@ public class UsuarioProyectoServiceImp implements UsuarioProyectoService {
         for (Usuario usuario : usuarios) {
             if (this.usuarioProyectoRepository.findUsuarioProyecto(usuario.getIdUsuario(), idCarrera).isPresent()) {
                 Integer temp = this.usuarioProyectoRepository.getCantidadProyectos(usuario.getIdUsuario(), Boolean.TRUE);
-                if (cantidad > temp || tempUsuario==null) {
+                if (cantidad > temp || tempUsuario == null) {
                     cantidad = temp;
                     tempUsuario = usuario;
                 }
@@ -81,50 +81,50 @@ public class UsuarioProyectoServiceImp implements UsuarioProyectoService {
         }
         return tempUsuario;
     }
-    
-    private Boolean validarRol(List<RolUsuario> rolesUsuario,Rol rol){
+
+    private Boolean validarRol(List<RolUsuario> rolesUsuario, Rol rol) {
         return rolesUsuario.stream().anyMatch(usuario -> usuario.getIdRolFk().equals(rol));
     }
-    
-    private Boolean validarCarrera(List<CarreraUsuario> carrerasUsuario,Carrera carrera){
+
+    private Boolean validarCarrera(List<CarreraUsuario> carrerasUsuario, Carrera carrera) {
         return carrerasUsuario.stream().anyMatch(carreraUsuario -> carreraUsuario.getIdCarreraFk().equals(carrera));
     }
 
-    @Override
+    /*@Override
     public UsuarioProyecto actualizarSupervisorProyecto(Proyecto proyecto, Usuario supervisor) throws Exception {
-        UsuarioProyecto supervisorProyecto = this.getSupervisorProyecto(proyecto.getIdProyecto());
+        Usuario supervisor = this.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
         Rol rolSupervisor = this.rolService.getRol(RolUtils.ID_ROL_SUPERVISOR);
-        if (!validarRol(this.rolService.getRolUsuario(supervisor.getIdUsuario()), rolSupervisor)) { 
+        if (!validarRol(this.rolService.getRolUsuario(supervisor.getIdUsuario()), rolSupervisor)) {
             throw new Exception("El Usuario asignado no es de tipo Supervisor");
         }
-        if(!validarCarrera(this.carreraService.getCarrerasUsuario(supervisor.getIdUsuario()),proyecto.getIdCarreraFk())){
-                throw new Exception("El Supervisor puede ser asignado debido a que no corresponde a la carrera del proyecto");
+        if (!validarCarrera(this.carreraService.getCarrerasUsuario(supervisor.getIdUsuario()), proyecto.getIdCarreraFk())) {
+            throw new Exception("El Supervisor puede ser asignado debido a que no corresponde a la carrera del proyecto");
         }
         supervisorProyecto.setActivo(Boolean.FALSE);
         return crearUsuarioProyecto(supervisor, proyecto, rolSupervisor);
-    }
-    
+    }*/
+
     @Override
     public UsuarioProyecto actualizarAsesorProyecto(Proyecto proyecto, Usuario asesor) throws Exception {
         UsuarioProyecto asesorProyecto = this.getAsesorProyecto(proyecto.getIdProyecto());
         Rol rolAsesor = this.rolService.getRol(RolUtils.ID_ROL_ASESOR);
-        if (!validarRol(this.rolService.getRolUsuario(asesor.getIdUsuario()), rolAsesor)) { 
+        /*if (!validarRol(this.rolService.getRolUsuario(asesor.getIdUsuario()), rolAsesor)) {
             throw new Exception("El Usuario asignado no es de tipo Asesor");
         }
-        if(!validarCarrera(this.carreraService.getCarrerasUsuario(asesor.getIdUsuario()),proyecto.getIdCarreraFk())){
-                throw new Exception("El Supervisor puede ser asignado debido a que no corresponde a la carrera del proyecto");
-        }
+        if (!validarCarrera(this.carreraService.getCarrerasUsuario(asesor.getIdUsuario()), proyecto.getIdCarreraFk())) {
+            throw new Exception("El Supervisor puede ser asignado debido a que no corresponde a la carrera del proyecto");
+        }*/
         asesorProyecto.setActivo(Boolean.FALSE);
         return crearUsuarioProyecto(asesor, proyecto, rolAsesor);
     }
-    
+
     @Override
     public UsuarioProyecto actualizarContraparteProyecto(Proyecto proyecto, Usuario contraparte) throws Exception {
         UsuarioProyecto contraparteProyecto = this.getContraparteProyecto(proyecto.getIdProyecto());
         Rol rolContraparte = this.rolService.getRol(RolUtils.ID_ROL_CONTRAPARTE);
-        if (!validarRol(this.rolService.getRolUsuario(contraparte.getIdUsuario()), rolContraparte)) { 
+        /*if (!validarRol(this.rolService.getRolUsuario(contraparte.getIdUsuario()), rolContraparte)) {
             throw new Exception("El Usuario asignado no es de tipo Asesor");
-        }
+        }*/
         contraparteProyecto.setActivo(Boolean.FALSE);
         return crearUsuarioProyecto(contraparte, proyecto, rolContraparte);
     }
@@ -159,14 +159,21 @@ public class UsuarioProyectoServiceImp implements UsuarioProyectoService {
     }
 
     @Override
+    public UsuarioProyecto getUsuarioProyecto(Integer idProyecto, Integer idUsuario) throws Exception {
+        return this.usuarioProyectoRepository.findUsuarioAsignadoProyecto(idProyecto, idUsuario, Boolean.TRUE);
+    }
+
+    /*
+    @Override
     public UsuarioProyecto getSecretariaProyecto(Integer idProyecto) throws Exception {
         return this.usuarioProyectoRepository.findUsuarioProyecto(idProyecto, RolUtils.ID_ROL_SECRETARIA, Boolean.TRUE);
     }
+    */
 
-    @Override
+    /*@Override
     public UsuarioProyecto getSupervisorProyecto(Integer idProyecto) throws Exception {
         return this.usuarioProyectoRepository.findUsuarioProyecto(idProyecto, RolUtils.ID_ROL_SUPERVISOR, Boolean.TRUE);
-    }
+    }*/
 
     @Override
     public UsuarioProyecto getAsesorProyecto(Integer idProyecto) throws Exception {
@@ -178,9 +185,10 @@ public class UsuarioProyectoServiceImp implements UsuarioProyectoService {
         return this.usuarioProyectoRepository.findUsuarioProyecto(idProyecto, RolUtils.ID_ROL_CONTRAPARTE, Boolean.TRUE);
     }
 
+    /*
     @Override
     public UsuarioProyecto getCoordinadoCarreraProyecto(Integer idProyecto) throws Exception {
         return this.usuarioProyectoRepository.findUsuarioProyecto(idProyecto, RolUtils.ID_ROL_COORDINADOR_CARRERA, Boolean.TRUE);
     }
-
+*/
 }

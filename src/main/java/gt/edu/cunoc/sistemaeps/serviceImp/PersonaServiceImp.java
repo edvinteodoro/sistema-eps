@@ -3,9 +3,11 @@ package gt.edu.cunoc.sistemaeps.serviceImp;
 import gt.edu.cunoc.sistemaeps.dto.UsuarioDto;
 import gt.edu.cunoc.sistemaeps.entity.Persona;
 import gt.edu.cunoc.sistemaeps.entity.Proyecto;
+import gt.edu.cunoc.sistemaeps.entity.Titulo;
 import gt.edu.cunoc.sistemaeps.entity.Usuario;
 import gt.edu.cunoc.sistemaeps.repository.PersonaRepository;
 import gt.edu.cunoc.sistemaeps.service.PersonaService;
+import gt.edu.cunoc.sistemaeps.service.TituloService;
 import gt.edu.cunoc.sistemaeps.service.UsuarioService;
 import gt.edu.cunoc.sistemaeps.util.RolUtils;
 import java.util.List;
@@ -20,18 +22,24 @@ public class PersonaServiceImp implements PersonaService {
 
     private final PersonaRepository personaRepository;
     private final UsuarioService usuarioService;
+    private final TituloService tituloService;
     private final String ROL_ASESOR_TECNICO = "ASESOR TECNICO";
 
     public PersonaServiceImp(PersonaRepository personaRepository,
-            UsuarioService usuarioService) {
+            UsuarioService usuarioService, TituloService tituloService) {
         this.personaRepository = personaRepository;
         this.usuarioService = usuarioService;
+        this.tituloService = tituloService;
     }
 
     @Override
     public Persona crearPersona(UsuarioDto usuarioDto, Proyecto proyecto, String rol) throws Exception {
         Persona persona = new Persona(usuarioDto);
         persona.setIdProyectoFk(proyecto);
+        if (usuarioDto.getTitulo() != null) {
+            Titulo titulo = this.tituloService.getTitulo(usuarioDto.getTitulo().getIdTitulo());
+            persona.setIdTituloFk(titulo);
+        }
         persona.setRol(rol);
         return save(persona);
     }
@@ -45,7 +53,7 @@ public class PersonaServiceImp implements PersonaService {
     public void eliminiarPersona(Integer idPersona) throws Exception {
         Usuario usuario = this.usuarioService.getLoggedUsuario();
         Persona persona = this.personaRepository.findById(idPersona).get();
-        if(!persona.getIdProyectoFk().getIdUsuarioFk().equals(usuario)){
+        if (!persona.getIdProyectoFk().getIdUsuarioFk().equals(usuario)) {
             throw new Exception("No tiene permisos para eliminar persona");
         }
         if (!persona.getRol().equals(ROL_ASESOR_TECNICO)) {

@@ -19,6 +19,7 @@ public class ActaDto {
     private LocalDate fecha;
     @JsonFormat(pattern = "dd-MM-yyyy")
     private LocalDate fechaEvaluacion;
+    private LocalDate fechaEvaluacionInput;
     @JsonFormat(pattern = "HH:mm")
     private LocalTime horaInicioEvaluacion;
     @JsonFormat(pattern = "HH:mm")
@@ -46,5 +47,6 @@ public class ActaDto {
         this.comentario = acta.getComentario();
         this.salon = acta.getSalon();
         this.actaGenerada = acta.isActaGenerada();
+        this.fechaEvaluacionInput=acta.getFechaEvaluacion();
     }
 }

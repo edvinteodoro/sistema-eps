@@ -13,13 +13,14 @@ import gt.edu.cunoc.sistemaeps.repository.ConvocatoriaRepository;
 import gt.edu.cunoc.sistemaeps.service.ConvocatoriaService;
 import gt.edu.cunoc.sistemaeps.service.CorrelativoService;
 import gt.edu.cunoc.sistemaeps.service.ElementoService;
-import gt.edu.cunoc.sistemaeps.service.EmailService;
 import gt.edu.cunoc.sistemaeps.service.EtapaService;
+import gt.edu.cunoc.sistemaeps.service.NotificacionService;
 import gt.edu.cunoc.sistemaeps.service.PdfGeneratorService;
 import gt.edu.cunoc.sistemaeps.service.StorageService;
 import gt.edu.cunoc.sistemaeps.service.TituloService;
 import gt.edu.cunoc.sistemaeps.service.UsuarioProyectoService;
 import gt.edu.cunoc.sistemaeps.util.DateUtils;
+import gt.edu.cunoc.sistemaeps.util.ElementoUtils;
 import gt.edu.cunoc.sistemaeps.util.EtapaUtils;
 import java.io.InputStream;
 import java.net.URL;
@@ -42,23 +43,8 @@ public class ConvocatoriaServiceImp implements ConvocatoriaService {
     private final StorageService storageService;
     private final PdfGeneratorService pdfGeneratorService;
     private final EtapaService etapaService;
-    private final EmailService emailService;
+    private final NotificacionService notificacionService;
     private final TituloService tituloService;
-
-    private final int ID_ELEMENTO_TITULO = 1;
-    private final int ID_ELEMENTO_CONVOCATORIA_ANTEPROYECTO = 8;
-    private final int ID_ELEMENTO_CONVOCATORIA_ANTEPROYECTO_FIRMADA = 9;
-    private final int ID_ELEMENTO_CONVOCATORIA_EXAMEN_GENERAL = 15;
-    private final int ID_ELEMENTO_CONVOCATORIA_EXAMEN_GENERAL_FIRMADA = 16;
-
-    private final String EMAI_SUBJECT_CONVOCATORIA_ANTEPROYECTO = "CONVOCATORIA DE ANTEPROYECTO";
-    private final String EMAI_SUBJECT_CONVOCATORIA_EXAMEN_GENERAL = "CONVOCATORIA EXAMEN GENERAL";
-
-    private final String EMAIL_MENSAJE_CONVOCATORIA__EXAMEN_GENERAL_FIRMA = "Se ha definido una nueva fecha de examen general pare el proyecto titulado: "
-            + "%s.   Los datos del estudiante son: <br>"
-            + "Nombre: %s <br> "
-            + "registro academico: %s <br> "
-            + "Debera descargar la convocatoria, firmarla y cargarla al sistema.";
 
     //Datos documentos generados
     private final String KEY_CARRERA = "${carrera}";
@@ -98,7 +84,7 @@ public class ConvocatoriaServiceImp implements ConvocatoriaService {
             UsuarioProyectoService usuarioProyectoService, ElementoService elementoService,
             StorageService storageService, PdfGeneratorService pdfGeneratorService,
             ConvocatoriaRepository convocatoriaRepository, EtapaService etapaService,
-            EmailService emailService, TituloService tituloService) {
+            NotificacionService notificacionService, TituloService tituloService) {
         this.correlativoService = correlativoService;
         this.usuarioProyectoService = usuarioProyectoService;
         this.elementoService = elementoService;
@@ -106,22 +92,15 @@ public class ConvocatoriaServiceImp implements ConvocatoriaService {
         this.pdfGeneratorService = pdfGeneratorService;
         this.convocatoriaRepository = convocatoriaRepository;
         this.etapaService = etapaService;
-        this.emailService = emailService;
+        this.notificacionService = notificacionService;
         this.tituloService = tituloService;
     }
 
-    private Map<String, String> getCamposConvocatoria(Proyecto proyecto, String correlativoFormato, ConvocatoriaDto convocatoriaDto) throws Exception {
+    private Map<String, String> getCamposConvocatoria(Proyecto proyecto, String correlativoFormato, ConvocatoriaDto convocatoriaDto,Convocatoria convocatoria) throws Exception {
         Carrera carrera = proyecto.getIdCarreraFk();
         Usuario estudiante = proyecto.getIdUsuarioFk();
         ElementoProyecto tituloProyecto = this.elementoService
-                .getElementoProyectoActivo(proyecto.getIdProyecto(), ID_ELEMENTO_TITULO);
-        Usuario coordinador = this.usuarioProyectoService
-                .getCoordinadoCarreraProyecto(proyecto.getIdProyecto()).getIdUsuarioFk();
-        Usuario supervisor = this.usuarioProyectoService
-                .getSupervisorProyecto(proyecto.getIdProyecto()).getIdUsuarioFk();
-        Usuario asesor = this.usuarioProyectoService
-                .getAsesorProyecto(proyecto.getIdProyecto()).getIdUsuarioFk();
-        Usuario coordinadorEps = this.usuarioProyectoService.getCoordinadorEpsDisponible();
+                .getElementoProyectoActivo(proyecto.getIdProyecto(), ElementoUtils.ID_ELEMENTO_TITULO);
         Map<String, String> campos = new HashMap<>();
         campos.put(KEY_CARRERA, carrera.getNombreCorto());
         campos.put(KEY_CORRELATIVO, correlativoFormato);
@@ -131,14 +110,14 @@ public class ConvocatoriaServiceImp implements ConvocatoriaService {
         campos.put(KEY_CARNE_ESTUDIANTE, estudiante.getDpi());
         campos.put(KEY_REGISTRO_ACADEMICO_ESTUDIANTE, estudiante.getRegistroAcademico());
         campos.put(KEY_TITULO_PROYECTO, tituloProyecto.getInformacion());
-        campos.put(KEY_TITULO_COORDINADOR_CARRERA, coordinador.getIdTituloFk().getAbreviatura());
-        campos.put(KEY_NOMBRE_COORDINADOR_CARRERA, coordinador.getNombreCompleto());
-        campos.put(KEY_TITULO_ASESOR, asesor.getIdTituloFk().getAbreviatura());
-        campos.put(KEY_NOMBRE_ASESOR, asesor.getNombreCompleto());
-        campos.put(KEY_TITULO_SUPERVISOR, supervisor.getIdTituloFk().getAbreviatura());
-        campos.put(KEY_NOMBRE_SUPERVISOR, supervisor.getNombreCompleto());
-        campos.put(KEY_TITULO_COORDINADOR_EPS, coordinadorEps.getIdTituloFk().getAbreviatura());
-        campos.put(KEY_NOMBRE_COORDINADOR_EPS, coordinadorEps.getNombreCompleto());
+        campos.put(KEY_TITULO_COORDINADOR_CARRERA, convocatoria.getIdCoordinadorCarreraFk().getIdTituloFk().getAbreviatura());
+        campos.put(KEY_NOMBRE_COORDINADOR_CARRERA, convocatoria.getIdCoordinadorCarreraFk().getNombreCompleto());
+        campos.put(KEY_TITULO_ASESOR, convocatoria.getIdAsesorFk().getIdTituloFk().getAbreviatura());
+        campos.put(KEY_NOMBRE_ASESOR, convocatoria.getIdAsesorFk().getNombreCompleto());
+        campos.put(KEY_TITULO_SUPERVISOR, convocatoria.getIdSupervisorFk().getIdTituloFk().getAbreviatura());
+        campos.put(KEY_NOMBRE_SUPERVISOR, convocatoria.getIdSupervisorFk().getNombreCompleto());
+        campos.put(KEY_TITULO_COORDINADOR_EPS, convocatoria.getIdCoordinadorEpsFk().getIdTituloFk().getAbreviatura());
+        campos.put(KEY_NOMBRE_COORDINADOR_EPS, convocatoria.getIdCoordinadorEpsFk().getNombreCompleto());
         campos.put(KEY_DIA_EVALUACION, DateUtils.getDayFromDate(convocatoriaDto.getFechaEvaluacion()));
         campos.put(KEY_FECHA_EVALUACION, DateUtils.getFormatedDate(convocatoriaDto.getFechaEvaluacion()));
         campos.put(KEY_HORA_EVALUACION, DateUtils.getFormatedTime(convocatoriaDto.getHoraEvaluacion()));
@@ -160,26 +139,34 @@ public class ConvocatoriaServiceImp implements ConvocatoriaService {
                 EtapaUtils.ID_ETAPA_CONVOCATORIA_ANTEPROYECTO);
         EtapaProyecto etapaProyecto = this.etapaService.getEtapaProyecto(proyecto.getIdProyecto(),
                 EtapaUtils.ID_ETAPA_CONVOCATORIA_ANTEPROYECTO);
+        Usuario supervisor = this.usuarioProyectoService
+                .getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
+        Usuario asesor = this.usuarioProyectoService
+                .getAsesorProyecto(proyecto.getIdProyecto()).getIdUsuarioFk();
+        Usuario coordinador = this.usuarioProyectoService
+                .getCoordinadorCarreraDisponible(proyecto.getIdCarreraFk().getIdCarrera());
+        Usuario coordinadorEps = this.usuarioProyectoService.getCoordinadorEpsDisponible();
         correlativo.setNumeracionActual(correlativo.getNumeracionActual() + 1);
         String correlativoFormato = getCorrelativo(correlativo);
         Convocatoria convocatoria = new Convocatoria(convocatoriaDto);
         convocatoria.setCorrelativo(correlativoFormato);
         convocatoria.setIdProyectoFk(proyecto);
         convocatoria.setTipo(CONVOCATORIA_TIPO_ANTEPROYECTO);
+        convocatoria.setIdSupervisorFk(supervisor);
+        convocatoria.setIdCoordinadorCarreraFk(coordinador);
+        convocatoria.setIdAsesorFk(asesor);
+        convocatoria.setIdCoordinadorEpsFk(coordinadorEps);
         if (convocatoriaDto.getTituloRepresentante() != null) {
             convocatoria.setIdTituloRepresentanteFk(this.tituloService
                     .getTitulo(convocatoriaDto.getTituloRepresentante().getIdTitulo()));
         }
-        Map<String, String> campos = getCamposConvocatoria(proyecto, correlativoFormato, convocatoriaDto);
-        Elemento elemento = this.elementoService.getElemento(ID_ELEMENTO_CONVOCATORIA_ANTEPROYECTO);
+        Map<String, String> campos = getCamposConvocatoria(proyecto, correlativoFormato, convocatoriaDto,convocatoria);
+        Elemento elemento = this.elementoService.getElemento(ElementoUtils.ID_ELEMENTO_CONVOCATORIA_ANTEPROYECTO);
         MultipartFile convocatoriaPdf = generarPdf(campos, elemento);
         ElementoProyecto elementoConvocatoria = this.elementoService
                 .crearElementoProyecto(proyecto, elemento, etapaProyecto, convocatoriaPdf);
         String urlFile = this.storageService.getFile(elementoConvocatoria.getInformacion());
-        this.emailService.sendDocumentEmail("edvinteodoro-gonzalezrafael@cunoc.edu.gt",
-                EMAI_SUBJECT_CONVOCATORIA_ANTEPROYECTO, proyecto.getIdUsuarioFk().getNombreCompleto(),
-                proyecto.getIdUsuarioFk().getRegistroAcademico(),
-                proyecto.getIdCarreraFk().getNombre(), urlFile);
+        this.notificacionService.notificarGeneracionConvocatoria(coordinadorEps, proyecto, urlFile);
         correlativoService.save(correlativo);
         return convocatoriaRepository.save(convocatoria);
     }
@@ -189,26 +176,34 @@ public class ConvocatoriaServiceImp implements ConvocatoriaService {
         Correlativo correlativo = this.correlativoService.getCorrelativo(EtapaUtils.ID_ETAPA_CONVOCATORIA_EXAMEN_GENERAL);
         EtapaProyecto etapaProyecto = this.etapaService.getEtapaProyecto(proyecto.getIdProyecto(),
                 EtapaUtils.ID_ETAPA_CONVOCATORIA_EXAMEN_GENERAL);
+        Usuario supervisor = this.usuarioProyectoService
+                .getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
+        Usuario asesor = this.usuarioProyectoService
+                .getAsesorProyecto(proyecto.getIdProyecto()).getIdUsuarioFk();
+        Usuario coordinador = this.usuarioProyectoService
+                .getCoordinadorCarreraDisponible(proyecto.getIdCarreraFk().getIdCarrera());
+        Usuario coordinadorEps = this.usuarioProyectoService.getCoordinadorEpsDisponible();
         correlativo.setNumeracionActual(correlativo.getNumeracionActual() + 1);
         String correlativoFormato = getCorrelativo(correlativo);
         Convocatoria convocatoria = new Convocatoria(convocatoriaDto);
         convocatoria.setCorrelativo(correlativoFormato);
         convocatoria.setIdProyectoFk(proyecto);
         convocatoria.setTipo(CONVOCATORIA_TIPO_EXAMEN_GENERAL);
+        convocatoria.setIdSupervisorFk(supervisor);
+        convocatoria.setIdCoordinadorCarreraFk(coordinador);
+        convocatoria.setIdAsesorFk(asesor); 
+        convocatoria.setIdCoordinadorEpsFk(coordinadorEps);
         if (convocatoriaDto.getTituloRepresentante() != null) {
             convocatoria.setIdTituloRepresentanteFk(this.tituloService
                     .getTitulo(convocatoriaDto.getTituloRepresentante().getIdTitulo()));
         }
-        Map<String, String> campos = getCamposConvocatoria(proyecto, correlativoFormato, convocatoriaDto);
-        Elemento elemento = this.elementoService.getElemento(ID_ELEMENTO_CONVOCATORIA_EXAMEN_GENERAL);
+        Map<String, String> campos = getCamposConvocatoria(proyecto, correlativoFormato, convocatoriaDto,convocatoria);
+        Elemento elemento = this.elementoService.getElemento(ElementoUtils.ID_ELEMENTO_CONVOCATORIA_EXAMEN_GENERAL);
         MultipartFile convocatoriaPdf = generarPdf(campos, elemento);
         ElementoProyecto elementoConvocatoria = this.elementoService
                 .crearElementoProyecto(proyecto, elemento, etapaProyecto, convocatoriaPdf);
         String urlFile = this.storageService.getFile(elementoConvocatoria.getInformacion());
-        this.emailService.sendDocumentEmail("edvinteodoro-gonzalezrafael@cunoc.edu.gt",
-                EMAI_SUBJECT_CONVOCATORIA_EXAMEN_GENERAL, proyecto.getIdUsuarioFk().getNombreCompleto(),
-                proyecto.getIdUsuarioFk().getRegistroAcademico(),
-                proyecto.getIdCarreraFk().getNombre(), urlFile);
+        this.notificacionService.notificarGeneracionConvocatoriaExamenGeneral(coordinadorEps, proyecto, urlFile);
         correlativoService.save(correlativo);
         return convocatoriaRepository.save(convocatoria);
     }
@@ -245,26 +240,44 @@ public class ConvocatoriaServiceImp implements ConvocatoriaService {
 
     @Override
     public void cargarConvocatoria(Proyecto proyecto, MultipartFile file) throws Exception {
-        Elemento elemento = this.elementoService.getElemento(ID_ELEMENTO_CONVOCATORIA_ANTEPROYECTO_FIRMADA);
+        Elemento elemento = this.elementoService.getElemento(ElementoUtils.ID_ELEMENTO_CONVOCATORIA_ANTEPROYECTO_FIRMADA);
         EtapaProyecto etapaProyecto = this.etapaService.getEtapaProyecto(proyecto.getIdProyecto(),
                 EtapaUtils.ID_ETAPA_CARGA_CONVOCATORIA_ANTEPROYECTO);
         ElementoProyecto elementoConvocatoria = this.elementoService.crearElementoProyecto(proyecto, elemento,
                 etapaProyecto, file);
         String urlFile = this.storageService.getFile(elementoConvocatoria.getInformacion());
-        this.emailService.sendNotificationEmail("edvinteodoro-gonzalezrafael@cunoc.edu.gt",
-                "CONVOCATORIA FIRMADA", "convocatoria firmada", urlFile);
+        notificarCargaConvocatoria(proyecto, urlFile);
+
+    }
+
+    private void notificarCargaConvocatoria(Proyecto proyecto, String urlFile) {
+        try {
+            Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
+            Usuario coordinadorCarrera = this.usuarioProyectoService.getCoordinadorCarreraDisponible(proyecto.getIdCarreraFk().getIdCarrera());
+            Usuario asesor = this.usuarioProyectoService.getAsesorProyecto(proyecto.getIdProyecto()).getIdUsuarioFk();
+            this.notificacionService.notificarConvocatoriaAnteproyecto(supervisor, proyecto, getConvocatoriaAnteproyecto(proyecto), urlFile);
+            this.notificacionService.notificarConvocatoriaAnteproyecto(coordinadorCarrera, proyecto, getConvocatoriaAnteproyecto(proyecto), urlFile);
+            this.notificacionService.notificarConvocatoriaAnteproyecto(asesor, proyecto, getConvocatoriaAnteproyecto(proyecto), urlFile);
+            this.notificacionService.notificarConvocatoriaAnteproyecto(proyecto.getIdUsuarioFk(), proyecto, getConvocatoriaAnteproyecto(proyecto), urlFile);
+        } catch (Exception e) {
+        }
     }
 
     @Override
     public void cargarConvocatoriaExamenGeneral(Proyecto proyecto, MultipartFile file) throws Exception {
-        Elemento elemento = this.elementoService.getElemento(ID_ELEMENTO_CONVOCATORIA_EXAMEN_GENERAL_FIRMADA);
+        Elemento elemento = this.elementoService.getElemento(ElementoUtils.ID_ELEMENTO_CONVOCATORIA_EXAMEN_GENERAL_FIRMADA);
         EtapaProyecto etapaProyecto = this.etapaService.getEtapaProyecto(proyecto.getIdProyecto(),
                 EtapaUtils.ID_ETAPA_CARGA_CONVOCATORIA_EXAMEN_GENERAL);
         ElementoProyecto elementoConvocatoria = this.elementoService.crearElementoProyecto(proyecto, elemento,
                 etapaProyecto, file);
         String urlFile = this.storageService.getFile(elementoConvocatoria.getInformacion());
-        this.emailService.sendNotificationEmail("edvinteodoro-gonzalezrafael@cunoc.edu.gt",
-                "CONVOCATORIA FIRMADA", "convocatoria firmada", urlFile);
+        Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
+        Usuario coordinadorCarrera = this.usuarioProyectoService.getCoordinadorCarreraDisponible(proyecto.getIdCarreraFk().getIdCarrera());
+        Usuario asesor = this.usuarioProyectoService.getAsesorProyecto(proyecto.getIdProyecto()).getIdUsuarioFk();
+        this.notificacionService.notificarConvocatoriaExamenGeneral(supervisor, proyecto, getConvocatoriaExamenGeneral(proyecto), urlFile);
+        this.notificacionService.notificarConvocatoriaExamenGeneral(coordinadorCarrera, proyecto, getConvocatoriaExamenGeneral(proyecto), urlFile);
+        this.notificacionService.notificarConvocatoriaExamenGeneral(asesor, proyecto, getConvocatoriaExamenGeneral(proyecto), urlFile);
+        this.notificacionService.notificarConvocatoriaExamenGeneral(proyecto.getIdUsuarioFk(), proyecto, getConvocatoriaExamenGeneral(proyecto), urlFile);
     }
 
     private String getCorrelativo(Correlativo correlativo) {

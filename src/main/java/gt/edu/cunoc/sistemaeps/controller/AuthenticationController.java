@@ -69,7 +69,6 @@ public class AuthenticationController {
                         authentication.getAuthorities().stream().map(authority -> authority.getAuthority()).toList());
                 return ResponseEntity.ok(response);
             } else {
-                System.out.println("invalido");
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Credenciales invalidas");
             }
         } catch (AuthenticationException e) {

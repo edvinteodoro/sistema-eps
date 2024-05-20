@@ -30,4 +30,8 @@ public interface UsuarioService {
     public void activarUsuario(TokenConfirmacionDto tokenConfirmacionDto) throws Exception;
 
     public Usuario actualizarUsuario(Integer idUsuario, UsuarioDto usuarioDto) throws Exception;
+    
+    public Usuario desactivarUsuario(Integer idUsuario) throws Exception;
+    
+    public Usuario resetPassword(Integer idUsuario) throws Exception;
 }

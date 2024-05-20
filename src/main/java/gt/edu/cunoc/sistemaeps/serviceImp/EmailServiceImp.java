@@ -8,7 +8,6 @@ import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
-import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 import org.thymeleaf.context.Context;
 import org.thymeleaf.spring6.SpringTemplateEngine;
@@ -33,11 +32,12 @@ public class EmailServiceImp implements EmailService {
     
     
     @Override
-    @Async
-    public void sendDocumentEmail(String to, String subject,String estudiante, String registro, String carrera, String fileUrl){
+    //@Async
+    public void sendDocumentEmail(String to, String tituloDocumento,String tituloProyecto,String estudiante, String registro, String carrera, String fileUrl){
         try {
             Context context = new Context();
-            context.setVariable("titulo", subject);
+            context.setVariable("titulo_documento", tituloDocumento);
+            context.setVariable("titulo_proyecto", tituloProyecto);
             context.setVariable("nombre_estudiante", estudiante);
             context.setVariable("registro_academico", registro);
             context.setVariable("carrera", carrera);
@@ -46,7 +46,7 @@ public class EmailServiceImp implements EmailService {
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
             helper.setTo(to);
-            helper.setSubject(subject);
+            helper.setSubject(tituloDocumento);
 
             String htmlContent = templateEngine.process(DOCUMENTO_GENERADO_TEMPLATE, context);
             helper.setText(htmlContent, true);
@@ -64,7 +64,7 @@ public class EmailServiceImp implements EmailService {
     }
 
     @Override
-    @Async
+    //@Async
     public void sendConfirmationEmail(String to, String link) {
         try {
             Context context = new Context();
@@ -87,26 +87,23 @@ public class EmailServiceImp implements EmailService {
         }
     }
 
-    @Async
+    //@Async
     @Override
-    public void sendNotificationEmail(String to, String subject, String message, String fileUrl) {
+    public void sendNotificationEmail(String subject,String to, String tituloProyecto, String estudiante, String registroAcademico, String mensaje) {
         try {
             Context context = new Context();
-            context.setVariable("message", message);
+            context.setVariable("titulo_proyecto", tituloProyecto);
+            context.setVariable("nombre_estudiante", estudiante);
+            context.setVariable("registro_academico", registroAcademico);
+            context.setVariable("mensaje", mensaje);
 
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");
 
             helper.setTo(to);
             helper.setSubject(subject);
-
             String htmlContent = templateEngine.process(NOTIFICACION_TEMPLATE, context);
             helper.setText(htmlContent, true);
-
-            // Attach file from URL
-            Resource resource = new UrlResource(new URL(fileUrl));
-            helper.addAttachment(resource.getFilename(), resource);
-
             mailSender.send(mimeMessage);
         } catch (MessagingException e) {
             System.out.println("Error sending email: " + e);

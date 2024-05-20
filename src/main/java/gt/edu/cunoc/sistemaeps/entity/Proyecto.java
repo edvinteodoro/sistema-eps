@@ -50,7 +50,7 @@ public class Proyecto {
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "idProyectoFk")
     private List<EtapaProyecto> etapaProyectoList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "idProyectoFk")
-    private List<ExtensionProyecto> extensionProyectoList;
+    private List<Prorroga> ProrrogaList;
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "idProyectoFk")
     private List<UsuarioProyecto> usuarioProyectoList;
     @JoinColumn(name = "id_carrera_fk", referencedColumnName = "id_carrera")

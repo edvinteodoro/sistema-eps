@@ -14,8 +14,9 @@ public class ProyectoFilter {
     private Boolean activo;
     private String registroEstudiante;
     private Integer idUsuarioAsignado;
-    private Integer idSecretaria;
-    private Integer idSupervisor;
-    private Integer idAsesor;
-    private Integer idCoordinadorCarrera;
+    //private Integer idSecretaria;
+    //private Integer idSupervisor;
+    //private Integer idAsesor;
+    //private Integer idCoordinadorCarrera;
+    private Integer idCarrera;
 }

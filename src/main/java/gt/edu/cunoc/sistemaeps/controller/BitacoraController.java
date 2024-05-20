@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 /**
@@ -40,12 +41,13 @@ public class BitacoraController {
     }
 
     @GetMapping
-    public ResponseEntity getBitacoras(Pageable pageable) {
+    public ResponseEntity getBitacoras(@RequestParam(required = false) String nombre,
+            @RequestParam(required = false) String registroAcademico, Pageable pageable) {
         try {
             pageable = PageRequest.of(pageable.getPageNumber(),
                     pageable.getPageSize(),
                     Sort.by(Sort.Direction.DESC, "idBitacora"));
-            Page<BitacoraDto> bitacoras = this.bitacoraService.getBitacoras(pageable)
+            Page<BitacoraDto> bitacoras = this.bitacoraService.getBitacoras(nombre,registroAcademico,pageable)
                     .map(BitacoraDto::new);
             return ResponseEntity.ok(bitacoras);
         } catch (Exception e) {

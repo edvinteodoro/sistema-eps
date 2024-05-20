@@ -4,7 +4,6 @@
     <provider>org.eclipse.persistence.jpa.PersistenceProvider</provider>
     <class>gt.edu.cunoc.sistemaeps.entity.Bitacora</class>
     <class>gt.edu.cunoc.sistemaeps.entity.Comentario</class>
-    <class>gt.edu.cunoc.sistemaeps.entity.ExtensionProyecto</class>
     <class>gt.edu.cunoc.sistemaeps.entity.Titulo</class>
     <class>gt.edu.cunoc.sistemaeps.entity.Constante</class>
     <class>gt.edu.cunoc.sistemaeps.entity.ComentarioBitacora</class>
@@ -30,6 +29,7 @@
     <class>gt.edu.cunoc.sistemaeps.entity.Permisos</class>
     <class>gt.edu.cunoc.sistemaeps.entity.Carrera</class>
     <class>gt.edu.cunoc.sistemaeps.entity.CambioUsuario</class>
+    <class>gt.edu.cunoc.sistemaeps.entity.Prorroga</class>
     <properties>
       <property name="javax.persistence.jdbc.url" value="jdbc:mysql://localhost:3306/datos_eps?zeroDateTimeBehavior=CONVERT_TO_NULL"/>
       <property name="javax.persistence.jdbc.user" value="root"/>

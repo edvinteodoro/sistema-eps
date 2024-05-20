@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface BitacoraService {
 
-    public Page<Bitacora> getBitacoras(Pageable pageable) throws Exception;
+    public Page<Bitacora> getBitacoras(String nombre, String registroAcademico,Pageable pageable) throws Exception;
 
     public Bitacora crearBitacora(Proyecto proyecto, BitacoraDto bitacoraDto) throws Exception;
 
@@ -33,7 +33,7 @@ public interface BitacoraService {
     public List<Recurso> getRecursosBitacora(Integer idBitacora) throws Exception;
 
     public void finalizarBitacora(Proyecto proyecto, MultipartFile cartaAsesor,
-            MultipartFile finiquitoContraparte, MultipartFile informeFinal) throws Exception;
+            MultipartFile finiquitoContraparte) throws Exception;
     
     public Bitacora eliminarRecurso(Integer idRecurso) throws Exception;
     

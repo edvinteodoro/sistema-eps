@@ -65,6 +65,18 @@ public class Convocatoria {
     @JoinColumn(name = "id_proyecto_fk", referencedColumnName = "id_proyecto")
     @ManyToOne(optional = false)
     private Proyecto idProyectoFk;
+    @JoinColumn(name = "id_supervisor_fk", referencedColumnName = "id_usuario")
+    @ManyToOne
+    private Usuario idSupervisorFk;
+    @JoinColumn(name = "id_coordinador_carrera_fk", referencedColumnName = "id_usuario")
+    @ManyToOne
+    private Usuario idCoordinadorCarreraFk;
+    @JoinColumn(name = "id_asesor_fk", referencedColumnName = "id_usuario")
+    @ManyToOne
+    private Usuario idAsesorFk;
+    @JoinColumn(name = "id_coordinador_eps_fk", referencedColumnName = "id_usuario")
+    @ManyToOne
+    private Usuario idCoordinadorEpsFk;
 
     public Convocatoria(ConvocatoriaDto convocatoriaDto) {
         this.fecha = DateUtils.getCurrentDate();

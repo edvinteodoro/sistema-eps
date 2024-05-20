@@ -36,5 +36,6 @@ public class ConvocatoriaDto {
         this.horaEvaluacion = convocatoria.getHoraEvaluacion().toLocalTime();
         this.salon = convocatoria.getSalon();
         this.tipo = convocatoria.getTipo();
+        this.comentario = convocatoria.getComentario();
     }
 }

@@ -7,13 +7,11 @@ import lombok.NoArgsConstructor;
  *
  * @author edvin
  */
+
 @Data
 @NoArgsConstructor
-public class BitacoraFilter {
+public class ProrrogaFilter {
     private String nombreEstudiante;
-    private Boolean revisionContraparte;
     private String registroEstudiante;
     private Integer idUsuarioAsignado;
-    private Integer idUsuario;
-    private Integer idCarrera;
 }

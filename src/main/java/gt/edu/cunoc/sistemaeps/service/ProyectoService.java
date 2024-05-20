@@ -29,10 +29,12 @@ import org.springframework.web.multipart.MultipartFile;
 public interface ProyectoService {
 
     public Proyecto getProyecto(Integer idProyecto);
-    
-    public Proyecto actualizarProyecto(Integer idProyecto,ProyectoDto proyectoDto) throws Exception;
 
-    public Page<Proyecto> getProyectos(Pageable pageable) throws Exception;
+    public Proyecto actualizarProyecto(Integer idProyecto, ProyectoDto proyectoDto) throws Exception;
+
+    public Page<Proyecto> getProyectos(String nombre, String registroAcademico, Pageable pageable) throws Exception;
+
+    public Proyecto finalizarProyecto(Integer idProyecto, ComentarioDto comentario) throws Exception;
 
     public Proyecto crearProyecto(ProyectoDto proyectoDto) throws Exception;
 
@@ -48,31 +50,55 @@ public interface ProyectoService {
 
     public Convocatoria getConvocatoriaAnteproyecto(Integer idProyecto) throws Exception;
 
+    public Convocatoria getConvocatoriaExamenGeneral(Integer idProyecto) throws Exception;
+
     public void crearConvocatoriaAnteproyecto(Integer idProyecto, ConvocatoriaDto convocatoriaDto) throws Exception;
 
     public void actualizarConvocatoriaAnteproyecto(Integer idProyecto, ConvocatoriaDto convocatoriaDto) throws Exception;
 
     public void cargarConvocatoria(Integer idProyecto, MultipartFile convocatoria) throws Exception;
-    
+
     public void cargarCartaAceptacionContraparte(Integer idProyecto, MultipartFile carta) throws Exception;
 
-    public Acta crearActaAnteproyecto(Integer idProyecto, ActaDto actaDto) throws Exception;
+    public Acta crearActa(Integer idProyecto, ActaDto actaDto) throws Exception;
 
     public Acta generarActaAnteproyecto(Integer idProyecto, ActaDto actaDto) throws Exception;
 
+    public Acta generarActaExamenGeneral(Integer idProyecto, ActaDto actaDto) throws Exception;
+
+    public Acta generarActaAprobacion(Integer idProyecto, ActaDto actaDto) throws Exception;
+
     public Acta getActaAnteproyecto(Integer idProyecto) throws Exception;
+
+    public Acta getActaExamenGeneral(Integer idProyecto) throws Exception;
+
+    public Acta getActaAprobacion(Integer idProyecto) throws Exception;
 
     public void habilitarBitacora(Integer idProyecto, UsuarioDto asesorDto) throws Exception;
 
-    public void finalizarBitacora(Integer idProyecto, MultipartFile cartaAsesor, MultipartFile finiquitoContraparte, MultipartFile informeFinal) throws Exception;
+    public void finalizarBitacora(Integer idProyecto, MultipartFile cartaAsesor, MultipartFile finiquitoContraparte) throws Exception;
+
+    public void aprobarBitacora(Integer idProyecto) throws Exception;
+    
+    public void rechazarBitacora(Integer idProyecto) throws Exception;
+    
+    public void cargarInformeFinal(Integer idProyecto, MultipartFile informeFinal) throws Exception;
 
     public Bitacora crearBitacora(Integer idProyecto, BitacoraDto bitacoraDto) throws Exception;
 
-    public Usuario actualizarSupervisor(Integer idProyecto, UsuarioDto usuarioDto) throws Exception;
+    //public Usuario actualizarSupervisor(Integer idProyecto, UsuarioDto usuarioDto) throws Exception;
 
     public Usuario actualizarAsesor(Integer idProyecto, UsuarioDto usuarioDto) throws Exception;
 
     public Usuario actualizarContraparte(Integer idProyecto, UsuarioDto usuarioDto) throws Exception;
 
     public Persona agregarAsesorTecnico(Integer idProyecto, UsuarioDto usuarioDto) throws Exception;
+
+    public void cargarArticulo(Integer idProyecto, MultipartFile articulo, MultipartFile traduccionArticulo) throws Exception;
+
+    public void aprobarInformeFinalSupervisor(Integer idProyecto) throws Exception;
+
+    public void cargarConstanciaLinguistica(Integer idProyecto, MultipartFile constanciaLinguistica) throws Exception;
+
+    public void cargarDictamenRevsion(Integer idProyecto, MultipartFile dictamenRevision, MultipartFile cartaRevision) throws Exception;
 }

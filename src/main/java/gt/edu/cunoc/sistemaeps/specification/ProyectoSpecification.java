@@ -1,13 +1,11 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package gt.edu.cunoc.sistemaeps.specification;
 
+import gt.edu.cunoc.sistemaeps.entity.Carrera;
 import gt.edu.cunoc.sistemaeps.entity.Proyecto;
 import gt.edu.cunoc.sistemaeps.entity.Usuario;
 import gt.edu.cunoc.sistemaeps.entity.UsuarioProyecto;
 import jakarta.persistence.criteria.Join;
+import jakarta.persistence.criteria.Predicate;
 import org.springframework.data.jpa.domain.Specification;
 
 /**
@@ -17,9 +15,10 @@ import org.springframework.data.jpa.domain.Specification;
 public class ProyectoSpecification {
 
     private static final String ACTIVO = "activo";
-    private static final String NOMBRE_ESTUDIANTE = "nombre";
+    private static final String NOMBRE_ESTUDIANTE = "nombreCompleto";
     private static final String REGISTRO_ESTUDIANTE = "registroAcademico";
     private static final String ID_USUARIO = "idUsuario";
+    private static final String ID_CARRERA = "idCarrera";
 
     public static Specification<Proyecto> filterBy(ProyectoFilter proyectoFilter) {
         return Specification
@@ -31,11 +30,11 @@ public class ProyectoSpecification {
 
     private static Specification<Proyecto> hasNombreEstudiante(String nombreEstudiante) {
         return ((root, query, cb) -> {
-            if (nombreEstudiante == null || nombreEstudiante.isEmpty()) {
+            if (nombreEstudiante == null || nombreEstudiante.isBlank()) {
                 return cb.conjunction();
             }
             Join<Proyecto, Usuario> usuario = root.join("idUsuarioFk");
-            return cb.like(usuario.get(NOMBRE_ESTUDIANTE), nombreEstudiante);
+            return cb.like(usuario.get(NOMBRE_ESTUDIANTE), "%" + nombreEstudiante + "%");
         });
     }
 
@@ -45,7 +44,7 @@ public class ProyectoSpecification {
 
     private static Specification<Proyecto> hasRegistroEstudiante(String registroEstudiante) {
         return ((root, query, cb) -> {
-            if (registroEstudiante == null || registroEstudiante.isEmpty()) {
+            if (registroEstudiante == null || registroEstudiante.isBlank()) {
                 return cb.conjunction();
             }
             Join<Proyecto, Usuario> usuario = root.join("idUsuarioFk");
@@ -64,4 +63,34 @@ public class ProyectoSpecification {
         });
     }
 
+    private static Specification<Proyecto> hasIdCarrera(Integer idCarrera) {
+        return ((root, query, cb) -> {
+            if (idCarrera == null) {
+                return cb.conjunction();
+            }
+            Join<Proyecto, Carrera> carrera = root.join("idCarreraFk");
+            return cb.equal(carrera.get(ID_CARRERA), idCarrera);
+        });
+    }
+
+    public static Specification<Proyecto> filter(ProyectoFilter proyectoFilter) {
+        return (root, query, cb) -> {
+            Predicate predicate = cb.conjunction();
+
+            if (proyectoFilter.getIdUsuarioAsignado() != null) {
+                Join<Proyecto, UsuarioProyecto> usuarioProyecto = root.join("usuarioProyectoList");
+                Join<UsuarioProyecto, Usuario> usuario = usuarioProyecto.join("idUsuarioFk");
+                predicate = cb.and(predicate,
+                        cb.equal(usuario.get("idUsuario"), proyectoFilter.getIdUsuarioAsignado()),
+                        cb.equal(usuarioProyecto.get("activo"), Boolean.TRUE));
+            }
+
+            if (proyectoFilter.getIdCarrera() != null) {
+                predicate = cb.or(predicate,
+                        cb.equal(root.get("idCarreraFk").get("idCarrera"), proyectoFilter.getIdCarrera()));
+            }
+
+            return predicate;
+        };
+    }
 }
