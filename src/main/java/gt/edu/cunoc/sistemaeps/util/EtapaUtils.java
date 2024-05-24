@@ -21,7 +21,7 @@ public class EtapaUtils {
     public static final int ID_ETAPA_EXAMEN_GENERAL = 14;
     public static final int ID_ETAPA_REDACCION_ARTICULO = 15;
     public static final int ID_ETAPA_REVISION_INFORME_FINAL = 16;
-    public static final int ID_ETAPA_REVISION_LINGUISTICA = 17;
+   // public static final int ID_ETAPA_REVISION_LINGUISTICA = 17;
     public static final int ID_ETAPA_DICTAMEN_REVISION = 18;
     public static final int ID_ETAPA_ACTA_FINALIZACION = 19;
     public static final int ID_ETAPA_FINALIZADO=20;

@@ -32,7 +32,7 @@ public interface BitacoraService {
 
     public List<Recurso> getRecursosBitacora(Integer idBitacora) throws Exception;
 
-    public void finalizarBitacora(Proyecto proyecto, MultipartFile cartaAsesor,
+    public void finalizarBitacora(Proyecto proyecto,
             MultipartFile finiquitoContraparte) throws Exception;
     
     public Bitacora eliminarRecurso(Integer idRecurso) throws Exception;

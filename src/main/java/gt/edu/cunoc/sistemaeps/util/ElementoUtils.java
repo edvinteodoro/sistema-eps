@@ -17,6 +17,7 @@ public class ElementoUtils {
     public static final int ID_ELEMENTO_CONVOCATORIA_EXAMEN_GENERAL = 15;
     public static final int ID_ELEMENTO_CONVOCATORIA_EXAMEN_GENERAL_FIRMADA = 16;
     public static final int ID_ELEMENTO_ACTA_ANTEPROYECTO = 10;
+    public static final int ID_ELEMENTO_CARTA_FINALIZACION_ASESOR = 12;
     public static final int ID_ELEMENTO_INFORME_FINAL = 14;
     public static final int ID_ELEMENTO_ACTA_EXAMEN_GENERAL = 17;
     public static final int ID_ELEMENTO_ACTA_FINALIZACION = 23;
@@ -26,5 +27,6 @@ public class ElementoUtils {
     public static final int ID_ELEMENTO_CONSTANCIA_LINGUISTICA = 20;
     public static final int ID_ELEMENTO_DICTAMEN_REVISION = 21;
     public static final int ID_ELEMENTO_CARTA_REVISION = 22;
+    public static final int ID_ELEMENTO_OFICIO_CONTRAPARTE = 27;
 
 }

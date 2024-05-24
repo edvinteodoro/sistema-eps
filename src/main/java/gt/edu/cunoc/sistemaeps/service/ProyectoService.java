@@ -58,7 +58,7 @@ public interface ProyectoService {
 
     public void cargarConvocatoria(Integer idProyecto, MultipartFile convocatoria) throws Exception;
 
-    public void cargarCartaAceptacionContraparte(Integer idProyecto, MultipartFile carta) throws Exception;
+    public void cargarCartaAceptacionContraparte(Integer idProyecto, MultipartFile cartaAceptacion,MultipartFile oficioContraparte) throws Exception;
 
     public Acta crearActa(Integer idProyecto, ActaDto actaDto) throws Exception;
 
@@ -76,29 +76,28 @@ public interface ProyectoService {
 
     public void habilitarBitacora(Integer idProyecto, UsuarioDto asesorDto) throws Exception;
 
-    public void finalizarBitacora(Integer idProyecto, MultipartFile cartaAsesor, MultipartFile finiquitoContraparte) throws Exception;
+    public void finalizarBitacora(Integer idProyecto, MultipartFile finiquitoContraparte) throws Exception;
 
     public void aprobarBitacora(Integer idProyecto) throws Exception;
-    
+
     public void rechazarBitacora(Integer idProyecto) throws Exception;
-    
-    public void cargarInformeFinal(Integer idProyecto, MultipartFile informeFinal) throws Exception;
+
+    public void cargarInformeFinal(Integer idProyecto, MultipartFile cartaAsesor,MultipartFile informeFinal) throws Exception;
 
     public Bitacora crearBitacora(Integer idProyecto, BitacoraDto bitacoraDto) throws Exception;
 
     //public Usuario actualizarSupervisor(Integer idProyecto, UsuarioDto usuarioDto) throws Exception;
-
     public Usuario actualizarAsesor(Integer idProyecto, UsuarioDto usuarioDto) throws Exception;
 
     public Usuario actualizarContraparte(Integer idProyecto, UsuarioDto usuarioDto) throws Exception;
 
     public Persona agregarAsesorTecnico(Integer idProyecto, UsuarioDto usuarioDto) throws Exception;
 
-    public void cargarArticulo(Integer idProyecto, MultipartFile articulo, MultipartFile traduccionArticulo) throws Exception;
+    public void cargarArticulo(Integer idProyecto, MultipartFile articulo, MultipartFile traduccionArticulo, MultipartFile constanciaLinguistica) throws Exception;
 
     public void aprobarInformeFinalSupervisor(Integer idProyecto) throws Exception;
 
-    public void cargarConstanciaLinguistica(Integer idProyecto, MultipartFile constanciaLinguistica) throws Exception;
+    //public void cargarConstanciaLinguistica(Integer idProyecto, MultipartFile constanciaLinguistica) throws Exception;
 
     public void cargarDictamenRevsion(Integer idProyecto, MultipartFile dictamenRevision, MultipartFile cartaRevision) throws Exception;
 }

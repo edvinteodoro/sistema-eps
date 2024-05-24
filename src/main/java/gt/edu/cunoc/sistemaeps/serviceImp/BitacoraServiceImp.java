@@ -102,7 +102,7 @@ public class BitacoraServiceImp implements BitacoraService {
         Bitacora bitacora = new Bitacora(bitacoraDto);
         bitacora.setIdProyectoFk(proyecto);
         bitacora = this.bitacoraRepository.save(bitacora);
-        notificarBitacora(proyecto); 
+        notificarBitacora(proyecto);
         return bitacora;
     }
 
@@ -128,7 +128,8 @@ public class BitacoraServiceImp implements BitacoraService {
         }
         bitacora.setDescripcion(bitacoraDto.getDescripcion());
         bitacora.setAvance(bitacoraDto.getAvance());
-        bitacora.setFechaReporte(bitacoraDto.getFechaReporteFormat());
+        bitacora.setFechaReporteInicio(bitacoraDto.getFechaReporteInicioFormat());
+        bitacora.setFechaReporteFin(bitacoraDto.getFechaReporteFinFormat());
         return this.bitacoraRepository.save(bitacora);
     }
 
@@ -161,16 +162,11 @@ public class BitacoraServiceImp implements BitacoraService {
     }
 
     @Override
-    public void finalizarBitacora(Proyecto proyecto, MultipartFile cartaAsesor,
-            MultipartFile finiquitoContraparte) throws Exception {
-        Elemento elementoCartaAsesor = this.elementoService.getElemento(ID_ELEMENTO_CARTA_FINALIZACION_ASESOR);
+    public void finalizarBitacora(Proyecto proyecto, MultipartFile finiquitoContraparte) throws Exception {
         Elemento elementoFiniquitoContraparte = this.elementoService.getElemento(ID_ELEMENTO_FINIQUITO_CONTRAPARTE);
         EtapaProyecto etapaProyecto = this.etapaService.getEtapaProyecto(
                 proyecto.getIdProyecto(),
                 EtapaUtils.ID_ETAPA_BITACORA);
-        this.elementoService.crearElementoProyecto(proyecto,
-                elementoCartaAsesor,
-                etapaProyecto, cartaAsesor);
         this.elementoService.crearElementoProyecto(proyecto,
                 elementoFiniquitoContraparte,
                 etapaProyecto, finiquitoContraparte);

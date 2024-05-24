@@ -28,6 +28,8 @@
                 <databasePass>Root.3161</databasePass>
                 <environment>DEV</environment>
                 <portNumber>8080</portNumber>
+                <mailUserName>edvinteodoro2@gmail.com</mailUserName>
+                <mailPassword>ckbnswmgecnccmsr</mailPassword>
             </properties>
         </profile>
         <profile>
@@ -38,6 +40,8 @@
                 <databasePass>Root.3161</databasePass>
                 <environment>PROD</environment>
                 <portNumber>8080</portNumber>
+                <mailUserName>email</mailUserName>
+                <mailPassword>password</mailPassword>
             </properties>
         </profile>
     </profiles>

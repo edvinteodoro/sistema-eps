@@ -54,9 +54,13 @@ public class Bitacora {
     @Column(name = "contiene_informe")
     private boolean contieneInforme;
     @Basic(optional = false)
-    @Column(name = "fecha_reporte")
+    @Column(name = "fecha_reporte_inicio")
     @Temporal(TemporalType.DATE)
-    private LocalDate fechaReporte;
+    private LocalDate fechaReporteInicio;
+    @Basic(optional = false)
+    @Column(name = "fecha_reporte_fin")
+    @Temporal(TemporalType.DATE)
+    private LocalDate fechaReporteFin;
     @Basic(optional = false)
     @Column(name = "fecha")
     @Temporal(TemporalType.DATE)
@@ -76,7 +80,8 @@ public class Bitacora {
         this.contieneInforme = Boolean.FALSE;
         this.revisionSupervisor = Boolean.FALSE;
         this.revisionContraparte = Boolean.FALSE;
-        this.fechaReporte = bitacoraDto.getFechaReporte();
+        this.fechaReporteInicio = bitacoraDto.getFechaReporteInicio();
+        this.fechaReporteFin = bitacoraDto.getFechaReporteFin();
         this.fecha = DateUtils.getCurrentDate();
     }
 }

@@ -25,7 +25,6 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -485,9 +484,10 @@ public class ProyectoController {
 
     @PostMapping("/{idProyecto}/cargar-carta-aceptacion-contraparte")
     public ResponseEntity cargaCartaAceptacionContraparte(@PathVariable Integer idProyecto,
-            @ModelAttribute MultipartFile file) {
+            @ModelAttribute MultipartFile cartaAceptacion,
+            @ModelAttribute MultipartFile oficioContraparte) {
         try {
-            this.proyectoService.cargarCartaAceptacionContraparte(idProyecto, file);
+            this.proyectoService.cargarCartaAceptacionContraparte(idProyecto, cartaAceptacion,oficioContraparte);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
             System.out.println("error:" + e.getMessage());
@@ -593,10 +593,9 @@ public class ProyectoController {
 
     @PostMapping("/{idProyecto}/finalizar-bitacora")
     public ResponseEntity finalizarBitacora(@PathVariable Integer idProyecto,
-            @ModelAttribute MultipartFile cartaAsesor,
             @ModelAttribute MultipartFile finiquitoContraparte) {
         try {
-            this.proyectoService.finalizarBitacora(idProyecto, cartaAsesor, finiquitoContraparte);
+            this.proyectoService.finalizarBitacora(idProyecto, finiquitoContraparte);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
             System.out.println("error:" + e.getMessage());
@@ -626,9 +625,9 @@ public class ProyectoController {
 
     @PostMapping("/{idProyecto}/cargar-informe-final")
     public ResponseEntity cargarInformeFinal(@PathVariable Integer idProyecto,
-            @ModelAttribute MultipartFile informeFinal) {
+            @ModelAttribute MultipartFile cartaAsesor,@ModelAttribute MultipartFile informeFinal) {
         try {
-            this.proyectoService.cargarInformeFinal(idProyecto, informeFinal);
+            this.proyectoService.cargarInformeFinal(idProyecto,cartaAsesor, informeFinal);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
             System.out.println("error:" + e.getMessage());
@@ -661,9 +660,10 @@ public class ProyectoController {
     @PostMapping("/{idProyecto}/cargar-articulo")
     public ResponseEntity cargarArticulo(@PathVariable Integer idProyecto,
             @ModelAttribute MultipartFile articulo,
-            @ModelAttribute MultipartFile traduccionArticulo) {
+            @ModelAttribute MultipartFile traduccionArticulo,
+            @ModelAttribute MultipartFile constanciaLinguistica) {
         try {
-            this.proyectoService.cargarArticulo(idProyecto, articulo, traduccionArticulo);
+            this.proyectoService.cargarArticulo(idProyecto, articulo, traduccionArticulo,constanciaLinguistica);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
             System.out.println("error:" + e.getMessage());
@@ -671,7 +671,7 @@ public class ProyectoController {
         }
     }
 
-    @PostMapping("/{idProyecto}/cargar-constancia-linguistica")
+    /*@PostMapping("/{idProyecto}/cargar-constancia-linguistica")
     public ResponseEntity cargarArticulo(@PathVariable Integer idProyecto,
             @ModelAttribute MultipartFile constanciaLinguistica) {
         try {
@@ -681,7 +681,7 @@ public class ProyectoController {
             System.out.println("error:" + e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
-    }
+    }*/
 
     @PostMapping("/{idProyecto}/cargar-dictamen-revision")
     public ResponseEntity cargarDictamenRevision(@PathVariable Integer idProyecto,

@@ -47,6 +47,8 @@ public class Persona {
     private String direccion;
     @Column(name = "puesto")
     private String puesto;
+    @Column(name = "titulo_asesor")
+    private String tituloAsesor;
     @Basic(optional = false)
     @Column(name = "rol")
     private String rol;
@@ -66,6 +68,7 @@ public class Persona {
         this.dpi = usuarioDto.getDpi();
         this.direccion = usuarioDto.getDireccion();
         this.puesto = usuarioDto.getPuesto();
+        this.tituloAsesor = usuarioDto.getTituloAsesor();
     }
     
     public void updatePersona(UsuarioDto usuarioDto){
@@ -77,6 +80,7 @@ public class Persona {
         this.dpi = usuarioDto.getDpi();
         this.direccion = usuarioDto.getDireccion();
         this.puesto = usuarioDto.getPuesto();
+        this.tituloAsesor = usuarioDto.getTituloAsesor();
         //this.rol = usuarioDto.getRol().getTitulo();
     }
 }

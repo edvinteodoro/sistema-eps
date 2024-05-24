@@ -351,7 +351,7 @@ public class ProyectoServiceImp implements ProyectoService {
         if (!etapaProyectoActiva.getIdEtapaFk().getIdEtapa().equals(EtapaUtils.ID_ETAPA_REVISION_INFORME_FINAL)) {
             throw new Exception("No se puede aprobar proyecto en esta etapa del proyecto");
         }
-        EtapaProyecto etapa = crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_REVISION_LINGUISTICA);
+        EtapaProyecto etapa = crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_DICTAMEN_REVISION);
         etapa.setEditable(Boolean.TRUE);
         this.etapaService.saveEtapaProyecto(etapa);
     }
@@ -466,7 +466,8 @@ public class ProyectoServiceImp implements ProyectoService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void cargarCartaAceptacionContraparte(Integer idProyecto, MultipartFile carta) throws Exception {
+    public void cargarCartaAceptacionContraparte(Integer idProyecto, MultipartFile cartaAceptacion,
+            MultipartFile oficioContraparte) throws Exception {
         Proyecto proyecto = getProyecto(idProyecto);
         Usuario usuario = this.usuarioService.getLoggedUsuario();
         EtapaProyecto etapaProyectoActiva = this.etapaService.getEtapaProyectoActivo(idProyecto);
@@ -476,23 +477,11 @@ public class ProyectoServiceImp implements ProyectoService {
         if (!etapaProyectoActiva.getIdEtapaFk().getIdEtapa().equals(EtapaUtils.ID_ETAPA_CARGA_CARTA_ACEPTACION_CONTRAPARTE)) {
             throw new Exception("No se puede cargar carta en esta etapa del proyecto.");
         }
-        cargarCartaAceptacionContraparte(proyecto, carta);
+        cargarElementoProyecto(proyecto, cartaAceptacion, ElementoUtils.ID_ELEMENTO_CARTA_ACEPTACION_CONTRAPARTE, EtapaUtils.ID_ETAPA_CARGA_CARTA_ACEPTACION_CONTRAPARTE);
+        cargarElementoProyecto(proyecto, oficioContraparte, ElementoUtils.ID_ELEMENTO_OFICIO_CONTRAPARTE, EtapaUtils.ID_ETAPA_CARGA_CARTA_ACEPTACION_CONTRAPARTE);
         EtapaProyecto etapa = crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_HABILITACION_BITACORA);
         etapa.setEditable(Boolean.TRUE);
         this.etapaService.saveEtapaProyecto(etapa);
-    }
-
-    private void cargarCartaAceptacionContraparte(Proyecto proyecto, MultipartFile file) throws Exception {
-        Elemento elemento = this.elementoService.getElemento(ElementoUtils.ID_ELEMENTO_CARTA_ACEPTACION_CONTRAPARTE);
-        EtapaProyecto etapaProyecto = this.etapaService.getEtapaProyecto(proyecto.getIdProyecto(),
-                EtapaUtils.ID_ETAPA_CARGA_CARTA_ACEPTACION_CONTRAPARTE);
-        ElementoProyecto elementoConvocatoria = this.elementoService.crearElementoProyecto(proyecto, elemento,
-                etapaProyecto, file);
-
-        /*
-        String urlFile = this.storageService.getFile(elementoConvocatoria.getInformacion());
-        this.emailService.sendNotificationEmail("edvinteodoro-gonzalezrafael@cunoc.edu.gt",
-                "CONVOCATORIA FIRMADA", "convocatoria firmada", urlFile);*/
     }
 
     @Override
@@ -671,7 +660,7 @@ public class ProyectoServiceImp implements ProyectoService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void finalizarBitacora(Integer idProyecto, MultipartFile cartaAsesor,
+    public void finalizarBitacora(Integer idProyecto,
             MultipartFile finiquitoContraparte) throws Exception {
         Usuario usuario = this.usuarioService.getLoggedUsuario();
         Proyecto proyecto = getProyecto(idProyecto);
@@ -682,7 +671,7 @@ public class ProyectoServiceImp implements ProyectoService {
         if (!etapaProyectoActiva.getIdEtapaFk().getIdEtapa().equals(EtapaUtils.ID_ETAPA_BITACORA)) {
             throw new Exception("No se puede realizar esta accion en esta etapa del proyecto");
         }
-        this.bitacoraService.finalizarBitacora(proyecto, cartaAsesor, finiquitoContraparte);
+        this.bitacoraService.finalizarBitacora(proyecto, finiquitoContraparte);
         crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_APROBACION_BITACORA);
     }
 
@@ -720,7 +709,8 @@ public class ProyectoServiceImp implements ProyectoService {
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void cargarInformeFinal(Integer idProyecto, MultipartFile informeFinal) throws Exception {
+    public void cargarInformeFinal(Integer idProyecto, MultipartFile cartaAsesor,
+            MultipartFile informeFinal) throws Exception {
         Usuario usuario = this.usuarioService.getLoggedUsuario();
         Proyecto proyecto = getProyecto(idProyecto);
         EtapaProyecto etapaProyectoActiva = this.etapaService.getEtapaProyectoActivo(idProyecto);
@@ -730,6 +720,7 @@ public class ProyectoServiceImp implements ProyectoService {
         if (!etapaProyectoActiva.getIdEtapaFk().getIdEtapa().equals(EtapaUtils.ID_ETAPA_CARGA_INFORME_FINAL)) {
             throw new Exception("No se puede realizar esta accion en esta etapa del proyecto");
         }
+        cargarElementoProyecto(proyecto, cartaAsesor, ElementoUtils.ID_ELEMENTO_CARTA_FINALIZACION_ASESOR, EtapaUtils.ID_ETAPA_CARGA_INFORME_FINAL);
         cargarElementoProyecto(proyecto, informeFinal, ElementoUtils.ID_ELEMENTO_INFORME_FINAL, EtapaUtils.ID_ETAPA_CARGA_INFORME_FINAL);
         crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_CONVOCATORIA_EXAMEN_GENERAL);
     }
@@ -737,7 +728,7 @@ public class ProyectoServiceImp implements ProyectoService {
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void cargarArticulo(Integer idProyecto, MultipartFile articulo,
-            MultipartFile traduccionArticulo) throws Exception {
+            MultipartFile traduccionArticulo, MultipartFile constanciaLinguistica) throws Exception {
         Usuario usuario = this.usuarioService.getLoggedUsuario();
         Proyecto proyecto = getProyecto(idProyecto);
         EtapaProyecto etapaProyectoActiva = this.etapaService.getEtapaProyectoActivo(idProyecto);
@@ -749,6 +740,7 @@ public class ProyectoServiceImp implements ProyectoService {
         }
         cargarElementoProyecto(proyecto, articulo, ElementoUtils.ID_ELEMENTO_ARTICULO, EtapaUtils.ID_ETAPA_REDACCION_ARTICULO);
         cargarElementoProyecto(proyecto, traduccionArticulo, ElementoUtils.ID_ELEMENTO_TRADUCCION_ARTICULO, EtapaUtils.ID_ETAPA_REDACCION_ARTICULO);
+        cargarElementoProyecto(proyecto, constanciaLinguistica, ElementoUtils.ID_ELEMENTO_CONSTANCIA_LINGUISTICA, EtapaUtils.ID_ETAPA_REDACCION_ARTICULO);
         EtapaProyecto etapa = crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_REVISION_INFORME_FINAL);
         etapa.setEditable(Boolean.TRUE);
         this.etapaService.saveEtapaProyecto(etapa);
@@ -762,7 +754,7 @@ public class ProyectoServiceImp implements ProyectoService {
         return elementoProyecto;
     }
 
-    @Override
+    /* @Override
     @Transactional(rollbackFor = Exception.class)
     public void cargarConstanciaLinguistica(Integer idProyecto, MultipartFile constanciaLinguistica) throws Exception {
         Usuario usuario = this.usuarioService.getLoggedUsuario();
@@ -779,8 +771,7 @@ public class ProyectoServiceImp implements ProyectoService {
         }
         cargarElementoProyecto(proyecto, constanciaLinguistica, ElementoUtils.ID_ELEMENTO_CONSTANCIA_LINGUISTICA, EtapaUtils.ID_ETAPA_REVISION_LINGUISTICA);
         crearEtapaProyecto(etapaProyectoActiva, proyecto, EtapaUtils.ID_ETAPA_DICTAMEN_REVISION);
-    }
-
+    }*/
     @Override
     @Transactional(rollbackFor = Exception.class)
     public void cargarDictamenRevsion(Integer idProyecto, MultipartFile dictamenRevision,

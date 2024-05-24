@@ -23,6 +23,7 @@ public class UsuarioDto {
     private String dpi;
     private String direccion;
     private String puesto;
+    private String tituloAsesor;
     private Boolean activo;
     private TituloDto titulo;
     private List<CarreraDto> carreras;
@@ -58,6 +59,8 @@ public class UsuarioDto {
         this.numeroColegiado = persona.getNumeroColegiado();
         this.registroAcademico = persona.getRegistroAcademico();
         this.dpi = persona.getDpi();
+        this.tituloAsesor = persona.getTituloAsesor();
+        this.puesto = persona.getPuesto();
         this.direccion = persona.getDireccion();
         if (persona.getIdTituloFk() != null) {
             this.titulo = new TituloDto(persona.getIdTituloFk());

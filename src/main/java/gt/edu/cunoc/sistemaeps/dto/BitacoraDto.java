@@ -20,9 +20,12 @@ public class BitacoraDto {
     private UsuarioDto usuario;
     private CarreraDto carrera;
     private Integer idProyecto;
-    private LocalDate fechaReporte;
+    private LocalDate fechaReporteInicio;
+    private LocalDate fechaReporteFin;
     @JsonFormat(pattern = "dd-MM-yyyy")
-    private LocalDate fechaReporteFormat;
+    private LocalDate fechaReporteInicioFormat;
+    @JsonFormat(pattern = "dd-MM-yyyy")
+    private LocalDate fechaReporteFinFormat;
     private LocalDate fecha;
     private Boolean revisionAsesor;
     private Boolean revisionSupervisor;
@@ -33,8 +36,10 @@ public class BitacoraDto {
         this.idBitacora = bitacora.getIdBitacora();
         this.descripcion = bitacora.getDescripcion();
         this.avance = bitacora.getAvance();
-        this.fechaReporte = bitacora.getFechaReporte();
-        this.fechaReporteFormat = bitacora.getFechaReporte();
+        this.fechaReporteInicio = bitacora.getFechaReporteInicio();
+        this.fechaReporteInicioFormat = bitacora.getFechaReporteInicio();
+        this.fechaReporteFin = bitacora.getFechaReporteFin();
+        this.fechaReporteFinFormat = bitacora.getFechaReporteFin();
         this.fecha = bitacora.getFecha();
         this.revisionAsesor = bitacora.isRevisionAsesor();
         this.revisionSupervisor = bitacora.isRevisionSupervisor();

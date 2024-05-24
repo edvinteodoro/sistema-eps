@@ -89,6 +89,7 @@ public class ActaServiceImp implements ActaService {
     private final String KEY_CARRERA_ESTUDIANTE = "${carrera_estudiante}";
     private final String KEY_RESULTADO = "${resultado}";
     private final String CUIDAD = "Quetzaltenango";
+    private final String KEY_NOTA = "${nota}";
 
     private final String ACTA_TIPO_ANTEPROYECTO = "ANTEPROYECTO";
     private final String ACTA_TIPO_EXAMEN_GENERAL = "EXAMEN GENERAL";
@@ -138,13 +139,16 @@ public class ActaServiceImp implements ActaService {
             campos.put(KEY_TITULO_COORDINADOR_EPS, coordinadorEps.getIdTituloFk().getAbreviatura());
             campos.put(KEY_NOMBRE_COORDINADOR_EPS, coordinadorEps.getNombreCompleto());
         }
+        if (acta.getNota() != null) {
+            campos.put(KEY_NOTA, acta.getNota().toString());
+        }
         campos.put(KEY_TITULO_ASESOR, asesor.getIdTituloFk().getAbreviatura());
         campos.put(KEY_NOMBRE_ASESOR, asesor.getNombreCompleto());
         campos.put(KEY_TITULO_SUPERVISOR, supervisor.getIdTituloFk().getAbreviatura());
         campos.put(KEY_NOMBRE_SUPERVISOR, supervisor.getNombreCompleto());
         campos.put(KEY_SALON_EVALUACION, acta.getSalon());
         campos.put(KEY_SEMESTRE, proyecto.getSemestre());
-        campos.put(KEY_ANIO, String.valueOf(LocalDate.now().getYear()));
+        campos.put(KEY_ANIO, String.valueOf(acta.getFechaEvaluacion().getYear()));
         campos.put(KEY_CARRERA_ESTUDIANTE, carrera.getNombre());
         campos.put(KEY_NOMBRE_ESTUDIANTE, estudiante.getNombreCompleto());
         campos.put(KEY_CARNE_ESTUDIANTE, estudiante.getDpi());
@@ -237,6 +241,7 @@ public class ActaServiceImp implements ActaService {
         acta.setHoraFinEvaluacion(actaDto.getHoraFinEvaluacion().atDate(LocalDate.now()));
         acta.setCorrelativo(correlativoFormato);
         acta.setTipo(ACTA_TIPO_FINALIZACION);
+        acta.setNota(actaDto.getNota());
         acta.setIdProyectoFk(proyecto);
         this.correlativoService.save(correlativo);
         Usuario secretaria = this.usuarioProyectoService.getSecretariaDisponible();
