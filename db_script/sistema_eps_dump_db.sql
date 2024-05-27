@@ -43,7 +43,7 @@ CREATE TABLE `acta` (
   PRIMARY KEY (`id_acta`),
   KEY `acta_proyecto_FK` (`id_proyecto_fk`),
   CONSTRAINT `acta_proyecto_FK` FOREIGN KEY (`id_proyecto_fk`) REFERENCES `proyecto` (`id_proyecto`)
-) ENGINE=InnoDB AUTO_INCREMENT=52 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -66,6 +66,7 @@ CREATE TABLE `bitacora` (
   `id_bitacora` int NOT NULL AUTO_INCREMENT,
   `descripcion` text CHARACTER SET utf8mb4 COLLATE utf8mb4_0900_ai_ci NOT NULL,
   `avance` int NOT NULL,
+  `numero_folio` int NOT NULL,
   `revision_asesor` tinyint(1) NOT NULL DEFAULT '0',
   `revision_supervisor` tinyint(1) NOT NULL DEFAULT '0',
   `revision_contraparte` tinyint(1) NOT NULL DEFAULT '0',
@@ -77,7 +78,7 @@ CREATE TABLE `bitacora` (
   PRIMARY KEY (`id_bitacora`),
   KEY `bitacora_FK` (`id_proyecto_fk`),
   CONSTRAINT `bitacora_FK` FOREIGN KEY (`id_proyecto_fk`) REFERENCES `proyecto` (`id_proyecto`)
-) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8mb3;
+) ENGINE=InnoDB AUTO_INCREMENT=56 DEFAULT CHARSET=utf8mb3;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -164,7 +165,7 @@ CREATE TABLE `carrera_usuario` (
   KEY `fk_USUARIOS_has_CARRERA_USUARIOS1_idx` (`id_usuario_fk`),
   CONSTRAINT `fk_USUARIOS_has_CARRERA_CARRERA1` FOREIGN KEY (`id_carrera_fk`) REFERENCES `carrera` (`id_carrera`),
   CONSTRAINT `fk_USUARIOS_has_CARRERA_USUARIOS1` FOREIGN KEY (`id_usuario_fk`) REFERENCES `usuario` (`id_usuario`)
-) ENGINE=InnoDB AUTO_INCREMENT=159 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=161 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -304,7 +305,7 @@ CREATE TABLE `convocatoria` (
   CONSTRAINT `convocatoria_usuario_FK_1` FOREIGN KEY (`id_coordinador_carrera_fk`) REFERENCES `usuario` (`id_usuario`),
   CONSTRAINT `convocatoria_usuario_FK_2` FOREIGN KEY (`id_asesor_fk`) REFERENCES `usuario` (`id_usuario`),
   CONSTRAINT `convocatoria_usuario_FK_3` FOREIGN KEY (`id_coordinador_eps_fk`) REFERENCES `usuario` (`id_usuario`)
-) ENGINE=InnoDB AUTO_INCREMENT=69 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=70 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -481,7 +482,7 @@ CREATE TABLE `elemento_proyecto` (
   KEY `fk_ELEMENTO_has_ETAPAS_PROYECTO_ELEMENTO1_idx` (`id_elemento_fk`),
   CONSTRAINT `fk_ELEMENTO_has_ETAPAS_PROYECTO_ELEMENTO1` FOREIGN KEY (`id_elemento_fk`) REFERENCES `elemento` (`id_elemento`),
   CONSTRAINT `fk_ELEMENTO_has_ETAPAS_PROYECTO_ETAPAS_PROYECTO1` FOREIGN KEY (`id_etapa_proyecto_fk`) REFERENCES `etapa_proyecto` (`id_etapa_proyecto`)
-) ENGINE=InnoDB AUTO_INCREMENT=1395 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1419 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -518,7 +519,7 @@ CREATE TABLE `etapa` (
 
 LOCK TABLES `etapa` WRITE;
 /*!40000 ALTER TABLE `etapa` DISABLE KEYS */;
-INSERT INTO `etapa` VALUES (1,'Creacion Proyecto','Estudiante debera solicitar la revision de su anteproyecto.',NULL,1),(2,'Revision Secretaria','Secretaria debera aprobar la informacion del anteproyecto.',NULL,4),(3,'Revision Supervisor','Supervisor debera aprobar la informacion del anteproyecto y debera asignar el asesor.',NULL,2),(4,'Convocatoria Evaluacion Anteproyecto','Supervisor debe realizar la convocatoria para la evaluacion del anteproyecto por parte de la Comision de EPS.',NULL,2),(5,'Carga Convocatoria Anteproyecto','Coordinador de EPS debe cargar la convocatoria de la evaluacion de antreproyecto firmada.',NULL,6),(6,'Evaluacion Anteproyecto','Supervisor debera registrar el resultado de la evaluacion de anteproyecto.',61,2),(7,'Carga Carta Aceptacion Contraparte','Estudiante debera realizar los cambios solicitados y cargar la carta de aceptacion de la contraparte institucional',NULL,1),(8,'Habilitacion de Bitacora','Supervisor debe asignar el representante de contraparte institucional y habilita la bitacora al estudiante.',NULL,2),(9,'Bitacora','Estudiante debera registrar su bitacora y al finalizar la ejecucion del proyecto debera finalizar la bitacora.',NULL,1),(10,'Aprobacion Bitacora','Supervisor debera aprobar la finalizacion de la bitacora.',NULL,2),(11,'Carga Informe Final','Estudiante debera cargar su informe final.',NULL,1),(12,'Convocatoria Examen General','Supervisor debe realizar la convocatoria al examen general de EPS.',NULL,2),(13,'Carga Convocatoria Examen General','Coordinador de Eps deber cargar la convocatoria del examen general firmada.',NULL,6),(14,'Evaluacion Examen General','Supervisor debera registrar el resultado del examen general de EPS.',61,2),(15,'Correcciones de Informe y Redaccion de Articulo','Estudiante debe realizar correcciones al Informe final y cargar articulo cientifico',NULL,1),(16,'Revision Informe Final','Supervisor revisa y debe aprobar el informe final',NULL,2),(17,'Dictamen de Revision','Supervisor debe cargar dictamen y carta de revision',NULL,2),(18,'Acta de Finalizacion','Coordinador de Eps debe crear el acta de finalizacion.',NULL,6),(19,'Finalizado','Proyecto de EPS finalizado',NULL,NULL);
+INSERT INTO `etapa` VALUES (1,'Creacion Proyecto','Estudiante debera solicitar la revision de su anteproyecto.',NULL,1),(2,'Revision Secretaria','Secretaria debera aprobar la informacion del anteproyecto.',NULL,4),(3,'Revision Supervisor','Supervisor debera aprobar la informacion del anteproyecto y debera asignar el asesor.',NULL,2),(4,'Convocatoria Evaluacion Anteproyecto','Supervisor debe realizar la convocatoria para la evaluacion del anteproyecto por parte de la Comision de EPS.',NULL,2),(5,'Carga Convocatoria Anteproyecto','Coordinador de EPS debe cargar la convocatoria de la evaluacion de antreproyecto firmada.',NULL,6),(6,'Evaluacion Anteproyecto','Supervisor debera registrar el resultado de la evaluacion de anteproyecto.',61,2),(7,'Carga Carta Aceptacion Contraparte','Estudiante debera realizar los cambios solicitados y cargar la carta de aceptacion de la contraparte institucional',NULL,1),(8,'Habilitacion de Bitacora','Supervisor debe asignar el representante de contraparte institucional y habilita la bitacora al estudiante.',NULL,2),(9,'Bitacora','Estudiante debera registrar su bitacora y al finalizar la ejecucion del proyecto debera finalizar la bitacora.',NULL,1),(10,'Aprobacion Bitacora','Supervisor debera aprobar la finalizacion de la bitacora.',NULL,2),(11,'Carga Informe Final','Estudiante debera cargar su informe final y carta de finalizacion de asesor.',NULL,1),(12,'Convocatoria Examen General','Supervisor debe realizar la convocatoria al examen general de EPS.',NULL,2),(13,'Carga Convocatoria Examen General','Coordinador de Eps deber cargar la convocatoria del examen general firmada.',NULL,6),(14,'Evaluacion Examen General','Supervisor debera registrar el resultado del examen general de EPS.',61,2),(15,'Correcciones de Informe y Redaccion de Articulo','Estudiante debe realizar correcciones al Informe final y cargar articulo cientifico',NULL,1),(16,'Revision Informe Final','Supervisor revisa y debe aprobar el informe final',NULL,2),(17,'Dictamen de Revision','Supervisor debe cargar dictamen y carta de revision',NULL,2),(18,'Acta de Finalizacion','Coordinador de Eps debe crear el acta de finalizacion.',NULL,6),(19,'Finalizado','Proyecto de EPS finalizado',NULL,NULL);
 /*!40000 ALTER TABLE `etapa` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -542,7 +543,7 @@ CREATE TABLE `etapa_proyecto` (
   KEY `fk_PROYECTO_EPS_has_ETAPA_PROYECTO_EPS1_idx` (`id_proyecto_fk`),
   CONSTRAINT `fk_PROYECTO_EPS_has_ETAPA_ETAPA1` FOREIGN KEY (`id_etapa_fk`) REFERENCES `etapa` (`id_etapa`),
   CONSTRAINT `fk_PROYECTO_EPS_has_ETAPA_PROYECTO_EPS1` FOREIGN KEY (`id_proyecto_fk`) REFERENCES `proyecto` (`id_proyecto`)
-) ENGINE=InnoDB AUTO_INCREMENT=529 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=546 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -574,7 +575,7 @@ CREATE TABLE `institucion` (
   KEY `institucion_municipio_FK` (`id_municipio_proyecto_fk`),
   CONSTRAINT `institucion_FK` FOREIGN KEY (`id_municipio_fk`) REFERENCES `municipio` (`id_municipio`),
   CONSTRAINT `institucion_municipio_FK` FOREIGN KEY (`id_municipio_proyecto_fk`) REFERENCES `municipio` (`id_municipio`)
-) ENGINE=InnoDB AUTO_INCREMENT=54 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=55 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -664,7 +665,7 @@ CREATE TABLE `persona` (
   KEY `persona_titulo_FK` (`id_titulo_fk`),
   CONSTRAINT `persona_FK` FOREIGN KEY (`id_proyecto_fk`) REFERENCES `proyecto` (`id_proyecto`),
   CONSTRAINT `persona_titulo_FK` FOREIGN KEY (`id_titulo_fk`) REFERENCES `titulo` (`id_titulo`)
-) ENGINE=InnoDB AUTO_INCREMENT=74 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=77 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -731,7 +732,7 @@ CREATE TABLE `proyecto` (
   CONSTRAINT `proyecto_eps_FK` FOREIGN KEY (`id_carrera_fk`) REFERENCES `carrera` (`id_carrera`),
   CONSTRAINT `proyecto_eps_FK_1` FOREIGN KEY (`id_institucion_fk`) REFERENCES `institucion` (`id_institucion`),
   CONSTRAINT `proyecto_eps_FK_2` FOREIGN KEY (`id_usuario_fk`) REFERENCES `usuario` (`id_usuario`)
-) ENGINE=InnoDB AUTO_INCREMENT=96 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=97 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -787,7 +788,7 @@ CREATE TABLE `refresh_token` (
   PRIMARY KEY (`id_refresh_token`),
   KEY `refresh_token_FK` (`id_usuario_fk`),
   CONSTRAINT `refresh_token_FK` FOREIGN KEY (`id_usuario_fk`) REFERENCES `usuario` (`id_usuario`)
-) ENGINE=InnoDB AUTO_INCREMENT=1570 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=1590 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -796,7 +797,6 @@ CREATE TABLE `refresh_token` (
 
 LOCK TABLES `refresh_token` WRITE;
 /*!40000 ALTER TABLE `refresh_token` DISABLE KEYS */;
-INSERT INTO `refresh_token` VALUES (1557,'26c949cd-356d-4520-8cd0-d1c6260d1167','2024-05-24 03:47:17',1),(1559,'6799c921-2f5e-476e-bdde-7959a78ecf57','2024-05-24 04:14:39',2);
 /*!40000 ALTER TABLE `refresh_token` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -872,7 +872,7 @@ CREATE TABLE `rol_usuario` (
   KEY `rol_usuario_FK_1` (`id_usuario_fk`),
   CONSTRAINT `rol_usuario_FK` FOREIGN KEY (`id_rol_fk`) REFERENCES `rol` (`id_rol`),
   CONSTRAINT `rol_usuario_FK_1` FOREIGN KEY (`id_usuario_fk`) REFERENCES `usuario` (`id_usuario`)
-) ENGINE=InnoDB AUTO_INCREMENT=34 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=37 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -926,7 +926,7 @@ CREATE TABLE `token_confirmacion` (
   PRIMARY KEY (`id_token_confirmacion`),
   KEY `id_usuario_fk` (`id_usuario_fk`),
   CONSTRAINT `token_confirmacion_ibfk_1` FOREIGN KEY (`id_usuario_fk`) REFERENCES `usuario` (`id_usuario`) ON DELETE CASCADE
-) ENGINE=InnoDB AUTO_INCREMENT=73 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=75 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -965,7 +965,7 @@ CREATE TABLE `usuario` (
   UNIQUE KEY `COLEGIADO_UNIQUE` (`numero_colegiado`),
   KEY `usuario_FK` (`id_titulo_fk`),
   CONSTRAINT `usuario_FK` FOREIGN KEY (`id_titulo_fk`) REFERENCES `titulo` (`id_titulo`)
-) ENGINE=InnoDB AUTO_INCREMENT=86 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=88 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -974,7 +974,7 @@ CREATE TABLE `usuario` (
 
 LOCK TABLES `usuario` WRITE;
 /*!40000 ALTER TABLE `usuario` DISABLE KEYS */;
-INSERT INTO `usuario` VALUES (1,'jose.granados@cunoc.edu.gt','José Moisés Granados Guevara','201030873','11096','201030873','Quetzaltenango','+502 55906132',NULL,1,'$2a$10$Gma0vAFYxfkq8.wzWjZhjOo/SkCesSHx8XB3HemIdze0qmDUcLYIm',1),(2,'edvinteodoro-gonzalezrafael@cunoc.edu.gt','Edvin Teodoro Gonzalez Rafael','201630873',NULL,'3218359051323',NULL,'+502 31615293',NULL,1,'$2a$10$Gma0vAFYxfkq8.wzWjZhjOo/SkCesSHx8XB3HemIdze0qmDUcLYIm',5),(3,'secretaria_epsing@cunoc.edu.gt','Magdalena Sierra','201530873',NULL,'201530873',NULL,'+502 12345678',NULL,1,'$2a$10$Gma0vAFYxfkq8.wzWjZhjOo/SkCesSHx8XB3HemIdze0qmDUcLYIm',6);
+INSERT INTO `usuario` VALUES (1,'jose.granados@cunoc.edu.gt','José Moisés Granados Guevara','201030873','11096','201030873','Quetzaltenango','+502 55906132',NULL,1,'$2a$10$Gma0vAFYxfkq8.wzWjZhjOo/SkCesSHx8XB3HemIdze0qmDUcLYIm',1),(2,'edvinteodoro-gonzalezrafael@cunoc.edu.gt','Edvin Teodoro González Rafael','201630873',NULL,'3218359051323',NULL,'+502 31615293',NULL,1,'$2a$10$Gma0vAFYxfkq8.wzWjZhjOo/SkCesSHx8XB3HemIdze0qmDUcLYIm',5),(3,'secretaria_epsing@cunoc.edu.gt','Magdalena Sierra','201530873',NULL,'201530873',NULL,'+502 12345678',NULL,1,'$2a$10$Gma0vAFYxfkq8.wzWjZhjOo/SkCesSHx8XB3HemIdze0qmDUcLYIm',6);
 /*!40000 ALTER TABLE `usuario` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1000,7 +1000,7 @@ CREATE TABLE `usuario_proyecto` (
   CONSTRAINT `usuario_proyecto_FK` FOREIGN KEY (`id_proyecto_fk`) REFERENCES `proyecto` (`id_proyecto`),
   CONSTRAINT `usuario_proyecto_FK_1` FOREIGN KEY (`id_usuario_fk`) REFERENCES `usuario` (`id_usuario`),
   CONSTRAINT `usuario_proyecto_FK_2` FOREIGN KEY (`id_rol_fk`) REFERENCES `rol` (`id_rol`)
-) ENGINE=InnoDB AUTO_INCREMENT=121 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=123 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -1021,4 +1021,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2024-05-23 22:35:19
+-- Dump completed on 2024-05-26 23:33:33

@@ -127,6 +127,7 @@ public class BitacoraServiceImp implements BitacoraService {
             throw new Exception("no tiene permiso para actualizar bitacora");
         }
         bitacora.setDescripcion(bitacoraDto.getDescripcion());
+        bitacora.setNumeroFolio(bitacoraDto.getNumeroFolio());
         bitacora.setAvance(bitacoraDto.getAvance());
         bitacora.setFechaReporteInicio(bitacoraDto.getFechaReporteInicioFormat());
         bitacora.setFechaReporteFin(bitacoraDto.getFechaReporteFinFormat());

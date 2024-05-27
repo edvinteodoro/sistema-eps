@@ -17,6 +17,7 @@ public class BitacoraDto {
     private Integer idBitacora;
     private String descripcion;
     private Integer avance;
+    private Integer numeroFolio;
     private UsuarioDto usuario;
     private CarreraDto carrera;
     private Integer idProyecto;
@@ -36,6 +37,7 @@ public class BitacoraDto {
         this.idBitacora = bitacora.getIdBitacora();
         this.descripcion = bitacora.getDescripcion();
         this.avance = bitacora.getAvance();
+        this.numeroFolio = bitacora.getNumeroFolio();
         this.fechaReporteInicio = bitacora.getFechaReporteInicio();
         this.fechaReporteInicioFormat = bitacora.getFechaReporteInicio();
         this.fechaReporteFin = bitacora.getFechaReporteFin();

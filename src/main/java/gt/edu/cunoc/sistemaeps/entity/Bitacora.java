@@ -42,6 +42,9 @@ public class Bitacora {
     @Column(name = "avance")
     private int avance;
     @Basic(optional = false)
+    @Column(name = "numero_folio")
+    private int numeroFolio;
+    @Basic(optional = false)
     @Column(name = "revision_asesor")
     private boolean revisionAsesor;
     @Basic(optional = false)
@@ -76,6 +79,7 @@ public class Bitacora {
     public Bitacora(BitacoraDto bitacoraDto) {
         this.descripcion = bitacoraDto.getDescripcion();
         this.avance = bitacoraDto.getAvance();
+        this.numeroFolio = bitacoraDto.getNumeroFolio();
         this.revisionAsesor = Boolean.FALSE;
         this.contieneInforme = Boolean.FALSE;
         this.revisionSupervisor = Boolean.FALSE;
