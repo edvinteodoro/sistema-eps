@@ -1,0 +1,11 @@
+[Unit]
+Description=Minio
+After=syslog.target
+
+[Service]
+User=root
+ExecStart=sudo MINIO_ROOT_USER=root MINIO_ROOT_PASSWORD=root.3161  minio server ~/storage --console-address :9001
+SuccessExitStatus=143
+
+[Install]
+WantedBy=multi-user.target

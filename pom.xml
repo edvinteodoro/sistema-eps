@@ -30,6 +30,12 @@
                 <portNumber>8080</portNumber>
                 <mailUserName>edvinteodoro2@gmail.com</mailUserName>
                 <mailPassword>ckbnswmgecnccmsr</mailPassword>
+                <minioUrl>http://localhost:9001</minioUrl>
+                <minioBucket>proyecto-eps-bucket</minioBucket>
+                <minioAccessKey>cxRnG6YQ1tRZ3V1y</minioAccessKey>
+                <minioSecretKey>bU7t1L8KkQRDy5Scuq8lTqWgnPZNYu7a</minioSecretKey>
+                <jwtSecret>secret1111111111111111111111111111111122secret1111111111111111111111111111111122</jwtSecret>
+                <logLocation>/opt/apps/logs/sistema-eps.log</logLocation>
             </properties>
         </profile>
         <profile>
@@ -42,6 +48,12 @@
                 <portNumber>8080</portNumber>
                 <mailUserName>email</mailUserName>
                 <mailPassword>password</mailPassword>
+                <minioUrl>http://localhost:9001</minioUrl>
+                <minioBucket>proyecto-eps-bucket</minioBucket>
+                <minioAccessKey>cxRnG6YQ1tRZ3V1y</minioAccessKey>
+                <minioSecretKey>bU7t1L8KkQRDy5Scuq8lTqWgnPZNYu7a</minioSecretKey>
+                <jwtSecret>secret1111111111111111111111111111111122secret1111111111111111111111111111111122</jwtSecret>
+                <logLocation>/opt/apps/logs/sistema-eps.log</logLocation>
             </properties>
         </profile>
     </profiles>
@@ -179,6 +191,7 @@
     </dependencies>
 
     <build>
+        <finalName>sistema-eps</finalName>
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

@@ -40,7 +40,7 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.cors(cors -> cors.configurationSource(request -> {
             CorsConfiguration config = new CorsConfiguration();
-            config.setAllowedOrigins(Arrays.asList("http://localhost:4200", "http://localhost:8080"));
+            config.addAllowedOriginPattern(CorsConfiguration.ALL); // Allow any origin
             config.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
             config.setAllowedHeaders(Arrays.asList("*"));
             config.setExposedHeaders(Arrays.asList("Authorization"));
@@ -53,8 +53,8 @@ public class SecurityConfig {
                     customizers.authenticationEntryPoint(unauthorizedHandler);
                 })
                 .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/api/auth/**").permitAll() // Allow unauthenticated access to the login endpoint
-                .anyRequest().authenticated()) // Require authentication for all other paths
+                        .requestMatchers("/api/auth/**").permitAll() // Allow unauthenticated access to the login endpoint
+                        .anyRequest().authenticated()) // Require authentication for all other paths
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .addFilterBefore(authFilter, UsernamePasswordAuthenticationFilter.class)
                 .userDetailsService(userDetailsService)
