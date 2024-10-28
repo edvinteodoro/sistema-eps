@@ -5,6 +5,8 @@ import gt.edu.cunoc.sistemaeps.dto.MunicipioDto;
 import gt.edu.cunoc.sistemaeps.service.DepartamentoService;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -19,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/departamentos")
 public class DepartamentoController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ActaController.class);
     private final DepartamentoService departamentoService;
 
     public DepartamentoController(DepartamentoService departamentoService) {
@@ -32,6 +35,7 @@ public class DepartamentoController {
                     .map(DepartamentoDto::new).collect(Collectors.toList());
             return ResponseEntity.ok(departamentos);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -43,6 +47,7 @@ public class DepartamentoController {
                     .map(MunicipioDto::new).collect(Collectors.toList());
             return ResponseEntity.ok(municipios);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }

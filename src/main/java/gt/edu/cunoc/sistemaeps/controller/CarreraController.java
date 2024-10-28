@@ -4,6 +4,8 @@ import gt.edu.cunoc.sistemaeps.dto.CarreraDto;
 import gt.edu.cunoc.sistemaeps.service.CarreraService;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -17,6 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/carreras")
 public class CarreraController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ActaController.class);
     private final CarreraService carreraService;
 
     public CarreraController(CarreraService carreraService) {
@@ -30,6 +33,7 @@ public class CarreraController {
                     .map(CarreraDto::new).collect(Collectors.toList());
             return ResponseEntity.ok(carreras);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }

@@ -30,10 +30,10 @@
                 <portNumber>8080</portNumber>
                 <mailUserName>edvinteodoro2@gmail.com</mailUserName>
                 <mailPassword>ckbnswmgecnccmsr</mailPassword>
-                <minioUrl>http://localhost:9001</minioUrl>
+                <minioUrl>http://localhost:9000</minioUrl>
                 <minioBucket>proyecto-eps-bucket</minioBucket>
-                <minioAccessKey>cxRnG6YQ1tRZ3V1y</minioAccessKey>
-                <minioSecretKey>bU7t1L8KkQRDy5Scuq8lTqWgnPZNYu7a</minioSecretKey>
+                <minioAccessKey>9FLmDFiFYXC5lxkJuKDa</minioAccessKey>
+                <minioSecretKey>26qAnCz0SQlLYSvUCIEhWPYNhm7SoZbhu44qIdph</minioSecretKey>
                 <jwtSecret>secret1111111111111111111111111111111122secret1111111111111111111111111111111122</jwtSecret>
                 <logLocation>/opt/apps/logs/sistema-eps.log</logLocation>
             </properties>
@@ -48,7 +48,7 @@
                 <portNumber>8080</portNumber>
                 <mailUserName>email</mailUserName>
                 <mailPassword>password</mailPassword>
-                <minioUrl>http://localhost:9001</minioUrl>
+                <minioUrl>http://localhost:9000</minioUrl>
                 <minioBucket>proyecto-eps-bucket</minioBucket>
                 <minioAccessKey>cxRnG6YQ1tRZ3V1y</minioAccessKey>
                 <minioSecretKey>bU7t1L8KkQRDy5Scuq8lTqWgnPZNYu7a</minioSecretKey>

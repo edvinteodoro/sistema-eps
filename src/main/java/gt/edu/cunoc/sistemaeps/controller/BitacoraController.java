@@ -7,6 +7,8 @@ import gt.edu.cunoc.sistemaeps.service.BitacoraService;
 import gt.edu.cunoc.sistemaeps.service.ComentarioBitacoraService;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -31,6 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/bitacoras")
 public class BitacoraController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ActaController.class);
     private final BitacoraService bitacoraService;
     private final ComentarioBitacoraService comentarioBitacoraService;
 
@@ -47,10 +50,11 @@ public class BitacoraController {
             pageable = PageRequest.of(pageable.getPageNumber(),
                     pageable.getPageSize(),
                     Sort.by(Sort.Direction.DESC, "idBitacora"));
-            Page<BitacoraDto> bitacoras = this.bitacoraService.getBitacoras(nombre,registroAcademico,pageable)
+            Page<BitacoraDto> bitacoras = this.bitacoraService.getBitacoras(nombre, registroAcademico, pageable)
                     .map(BitacoraDto::new);
             return ResponseEntity.ok(bitacoras);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -61,6 +65,7 @@ public class BitacoraController {
             BitacoraDto bitacora = new BitacoraDto(this.bitacoraService.getBitacora(idBitacora));
             return ResponseEntity.ok(bitacora);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -73,6 +78,7 @@ public class BitacoraController {
                     bitacoraDto));
             return ResponseEntity.ok(bitacora);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -84,6 +90,7 @@ public class BitacoraController {
                     .stream().map(RecursoDto::new).collect(Collectors.toList());
             return ResponseEntity.ok(recursos);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -95,6 +102,7 @@ public class BitacoraController {
             RecursoDto recurso = new RecursoDto(this.bitacoraService.crearRecursoBitacora(idBitacora, recursoDto));
             return ResponseEntity.ok(recurso);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -107,6 +115,7 @@ public class BitacoraController {
                     this.bitacoraService.eliminarRecurso(idRecurso));
             return ResponseEntity.ok(bitacora);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -120,6 +129,7 @@ public class BitacoraController {
                     .map(ComentarioBitacoraDto::new);
             return ResponseEntity.ok(comentarios);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -132,6 +142,7 @@ public class BitacoraController {
                     this.comentarioBitacoraService.crearComentario(idBitacora, comentarioBitacoraDto));
             return ResponseEntity.ok(comentario);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -142,6 +153,7 @@ public class BitacoraController {
             BitacoraDto bitacora = new BitacoraDto(this.bitacoraService.revisarBitacora(idBitacora));
             return ResponseEntity.ok(bitacora);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }

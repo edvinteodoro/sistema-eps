@@ -6,6 +6,8 @@ package gt.edu.cunoc.sistemaeps.controller;
 
 import gt.edu.cunoc.sistemaeps.dto.UsuarioDto;
 import gt.edu.cunoc.sistemaeps.service.PersonaService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -21,6 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/personas")
 public class PersonaController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ActaController.class);
     private final PersonaService personaService;
 
     public PersonaController(PersonaService personaService) {
@@ -33,6 +36,7 @@ public class PersonaController {
             UsuarioDto persona = new UsuarioDto(this.personaService.getPersona(idPersona));
             return ResponseEntity.ok(persona);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -43,6 +47,7 @@ public class PersonaController {
             this.personaService.eliminiarPersona(idPersona);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }

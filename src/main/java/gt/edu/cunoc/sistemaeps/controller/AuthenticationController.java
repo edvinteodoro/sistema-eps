@@ -16,6 +16,8 @@ import gt.edu.cunoc.sistemaeps.service.RefreshTokenService;
 import gt.edu.cunoc.sistemaeps.service.UsuarioService;
 import java.util.Collection;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -40,6 +42,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/auth")
 public class AuthenticationController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ActaController.class);
     private final AuthenticationManager authenticationManager;
     private final JwtService jwtService;
     private final UsuarioService usuarioService;
@@ -64,7 +67,7 @@ public class AuthenticationController {
                 SecurityContextHolder.getContext().setAuthentication(authentication);
                 Usuario usuario = this.usuarioService.getUsuario(loginRequest.getUsername());
                 RefreshToken refreshToken = this.refreshTokenService.createRefreshToken(usuario.getIdUsuario());
-                JwtResponse response = new JwtResponse(usuario.getIdUsuario(),jwtService.generateToken(loginRequest.getUsername(),
+                JwtResponse response = new JwtResponse(usuario.getIdUsuario(), jwtService.generateToken(loginRequest.getUsername(),
                         authentication.getAuthorities()), refreshToken.getToken(),
                         authentication.getAuthorities().stream().map(authority -> authority.getAuthority()).toList());
                 return ResponseEntity.ok(response);
@@ -72,10 +75,10 @@ public class AuthenticationController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Credenciales invalidas");
             }
         } catch (AuthenticationException e) {
-            System.out.println("error: " + e);
+            logger.error(e.getMessage());
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("Credenciales invalidas");
         } catch (Exception ex) {
-            System.out.println("error: " + ex);
+            logger.error(ex.getMessage());
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error en el sistema");
         }
     }
@@ -91,7 +94,7 @@ public class AuthenticationController {
                             .map(rolUsuario -> new SimpleGrantedAuthority(rolUsuario.getIdRolFk().getTitulo()))
                             .collect(Collectors.toList());
                     RefreshToken refreshToken = this.refreshTokenService.createRefreshToken(usuario.getIdUsuario(), requestRefreshToken);
-                    JwtResponse response = new JwtResponse(usuario.getIdUsuario(),jwtService
+                    JwtResponse response = new JwtResponse(usuario.getIdUsuario(), jwtService
                             .generateToken(usuario.getUserName(), authorities), refreshToken.getToken(),
                             authorities.stream().map(authority -> authority.getAuthority()).toList());
                     return ResponseEntity.ok(response);
@@ -106,7 +109,7 @@ public class AuthenticationController {
             this.usuarioService.activarUsuario(tokenConfirmacionDto);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
-            System.out.println("error: " + e);
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }

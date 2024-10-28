@@ -21,6 +21,8 @@ import gt.edu.cunoc.sistemaeps.service.ProyectoService;
 import gt.edu.cunoc.sistemaeps.service.UsuarioProyectoService;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -42,6 +44,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/proyectos")
 public class ProyectoController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ActaController.class);
     private final ProyectoService proyectoService;
     private final ProrrogaService prorrogaService;
     private final ElementoService elementoService;
@@ -80,6 +83,7 @@ public class ProyectoController {
                     .map(ProyectoDto::new);
             return ResponseEntity.ok(proyectos);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -91,6 +95,7 @@ public class ProyectoController {
                     .stream().map(ProyectoDto::new).collect(Collectors.toList());
             return ResponseEntity.ok(proyectos);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -101,6 +106,7 @@ public class ProyectoController {
             ProyectoDto proyecto = new ProyectoDto(this.proyectoService.getProyecto(idProyecto));
             return ResponseEntity.ok(proyecto);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -112,7 +118,7 @@ public class ProyectoController {
                     .crearProyecto(proyectoDto));
             return ResponseEntity.ok(proyecto);
         } catch (Exception e) {
-            System.out.println("error: " + e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -125,7 +131,7 @@ public class ProyectoController {
                     .finalizarProyecto(idProyecto, comentarioDto));
             return ResponseEntity.ok(proyecto);
         } catch (Exception e) {
-            System.out.println("error: " + e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -137,6 +143,7 @@ public class ProyectoController {
             ProyectoDto proyecto = new ProyectoDto(this.proyectoService.actualizarProyecto(idProyecto, proyectoDto));
             return ResponseEntity.ok(proyecto);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -149,7 +156,7 @@ public class ProyectoController {
                     .crearElementoProyecto(idProyecto, idElemento, elementoProyectoDto));
             return ResponseEntity.ok(elementoProyecto);
         } catch (Exception e) {
-            System.out.println("error: " + e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -162,7 +169,7 @@ public class ProyectoController {
                     .getElementoProyectoActivo(idProyecto, idElemento));
             return ResponseEntity.ok(elementoProyecto);
         } catch (Exception e) {
-            System.out.println("error: " + e);
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -175,7 +182,7 @@ public class ProyectoController {
                     .map(ComentarioDto::new);
             return ResponseEntity.ok(comentarios);
         } catch (Exception e) {
-            System.out.println("error: " + e);
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -188,7 +195,7 @@ public class ProyectoController {
                     this.etapaService.getEtapaProyectoActivo(idProyecto));
             return ResponseEntity.ok(etapaProyecto);
         } catch (Exception e) {
-            System.out.println("error: " + e);
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -200,6 +207,7 @@ public class ProyectoController {
                     this.personaService.getContraparte(idProyecto));
             return ResponseEntity.ok(contraparte);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -212,6 +220,7 @@ public class ProyectoController {
                     this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera()));
             return ResponseEntity.ok(supervisor);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -233,6 +242,7 @@ public class ProyectoController {
                     this.usuarioProyectoService.getAsesorProyecto(idProyecto).getIdUsuarioFk());
             return ResponseEntity.ok(asesor);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -244,6 +254,7 @@ public class ProyectoController {
             UsuarioDto usuario = new UsuarioDto(this.proyectoService.actualizarAsesor(idProyecto, usuarioDto));
             return ResponseEntity.ok(usuario);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -255,6 +266,7 @@ public class ProyectoController {
             UsuarioDto usuario = new UsuarioDto(this.proyectoService.actualizarContraparte(idProyecto, usuarioDto));
             return ResponseEntity.ok(usuario);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -267,6 +279,7 @@ public class ProyectoController {
                     this.usuarioProyectoService.getCoordinadorCarreraDisponible(proyecto.getIdCarreraFk().getIdCarrera()));
             return ResponseEntity.ok(coordinadorCarrera);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -278,7 +291,7 @@ public class ProyectoController {
                     this.usuarioProyectoService.getContraparteProyecto(idProyecto).getIdUsuarioFk());
             return ResponseEntity.ok(asesor);
         } catch (Exception e) {
-            System.out.println("error: " + e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -290,6 +303,7 @@ public class ProyectoController {
                     this.personaService.getAsesor(idProyecto));
             return ResponseEntity.ok(asesor);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -301,6 +315,7 @@ public class ProyectoController {
                     .stream().map(UsuarioDto::new).collect(Collectors.toList());
             return ResponseEntity.ok(asespresTecnicos);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -312,7 +327,7 @@ public class ProyectoController {
             UsuarioDto asesorTecnico = new UsuarioDto(this.proyectoService.agregarAsesorTecnico(idProyecto, usuarioDto));
             return ResponseEntity.ok(asesorTecnico);
         } catch (Exception e) {
-            System.out.println("error: "+e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -325,6 +340,7 @@ public class ProyectoController {
                     this.personaService.actualizarPersona(idProyecto, idPersona, usuarioDto));
             return ResponseEntity.ok(persona);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -337,6 +353,7 @@ public class ProyectoController {
                     this.personaService.actualizarPersona(idProyecto, idPersona, usuarioDto));
             return ResponseEntity.ok(persona);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -349,6 +366,7 @@ public class ProyectoController {
                     this.institucionService.actualizarInstitucion(idProyecto, institucionDto));
             return ResponseEntity.ok(institucion);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -360,7 +378,7 @@ public class ProyectoController {
             ComentarioDto comentario = new ComentarioDto(this.comentarioService.crearComentario(idProyecto, comentarioDto));
             return ResponseEntity.ok(comentario);
         } catch (Exception e) {
-            System.out.println("error: " + e);
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -371,7 +389,7 @@ public class ProyectoController {
             this.proyectoService.solicitarRevision(idProyecto);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
-            System.out.println("error: " + e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -383,7 +401,7 @@ public class ProyectoController {
             ComentarioDto comentario = new ComentarioDto(this.proyectoService.solicitarCambios(idProyecto, comentarioDto));
             return ResponseEntity.ok(comentario);
         } catch (Exception e) {
-            System.out.println("error: " + e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -394,7 +412,7 @@ public class ProyectoController {
             this.proyectoService.aprobarProyectoSecretaria(idProyecto);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
-            System.out.println("error: " + e);
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -406,7 +424,7 @@ public class ProyectoController {
             this.proyectoService.aprobarProyectoSupervisor(idProyecto, usuarioDto);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
-            System.out.println("error: " + e);
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -417,7 +435,7 @@ public class ProyectoController {
             this.proyectoService.aprobarInformeFinalSupervisor(idProyecto);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
-            System.out.println("error: " + e);
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -429,7 +447,7 @@ public class ProyectoController {
             this.proyectoService.crearConvocatoriaAnteproyecto(idProyecto, convocatoriaDto);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
-            System.out.println("error:" + e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -441,7 +459,7 @@ public class ProyectoController {
                     this.proyectoService.getConvocatoriaAnteproyecto(idProyecto));
             return ResponseEntity.ok(convocatoria);
         } catch (Exception e) {
-            System.out.println("error:" + e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -453,7 +471,7 @@ public class ProyectoController {
                     this.proyectoService.getConvocatoriaExamenGeneral(idProyecto));
             return ResponseEntity.ok(convocatoria);
         } catch (Exception e) {
-            System.out.println("error:" + e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -465,7 +483,7 @@ public class ProyectoController {
             this.proyectoService.actualizarConvocatoriaAnteproyecto(idProyecto, convocatoriaDto);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
-            System.out.println("error:" + e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -477,7 +495,7 @@ public class ProyectoController {
             this.proyectoService.cargarConvocatoria(idProyecto, file);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
-            System.out.println("error:" + e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -487,10 +505,10 @@ public class ProyectoController {
             @ModelAttribute MultipartFile cartaAceptacion,
             @ModelAttribute MultipartFile oficioContraparte) {
         try {
-            this.proyectoService.cargarCartaAceptacionContraparte(idProyecto, cartaAceptacion,oficioContraparte);
+            this.proyectoService.cargarCartaAceptacionContraparte(idProyecto, cartaAceptacion, oficioContraparte);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
-            System.out.println("error:" + e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -502,7 +520,7 @@ public class ProyectoController {
             this.proyectoService.crearActa(idProyecto, actaDto);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
-            System.out.println("error:" + e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -514,7 +532,7 @@ public class ProyectoController {
                     this.proyectoService.getActaAnteproyecto(idProyecto));
             return ResponseEntity.ok(acta);
         } catch (Exception e) {
-            System.out.println("error:" + e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -526,7 +544,7 @@ public class ProyectoController {
                     this.proyectoService.getActaExamenGeneral(idProyecto));
             return ResponseEntity.ok(acta);
         } catch (Exception e) {
-            System.out.println("error:" + e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -538,7 +556,7 @@ public class ProyectoController {
                     this.proyectoService.getActaAprobacion(idProyecto));
             return ResponseEntity.ok(acta);
         } catch (Exception e) {
-            System.out.println("error:" + e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -550,7 +568,7 @@ public class ProyectoController {
             ActaDto acta = new ActaDto(this.proyectoService.generarActaAnteproyecto(idProyecto, actaDto));
             return ResponseEntity.ok(acta);
         } catch (Exception e) {
-            System.out.println("error:" + e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -562,7 +580,7 @@ public class ProyectoController {
             ActaDto acta = new ActaDto(this.proyectoService.generarActaExamenGeneral(idProyecto, actaDto));
             return ResponseEntity.ok(acta);
         } catch (Exception e) {
-            System.out.println("error:" + e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -574,7 +592,7 @@ public class ProyectoController {
             ActaDto acta = new ActaDto(this.proyectoService.generarActaAprobacion(idProyecto, actaDto));
             return ResponseEntity.ok(acta);
         } catch (Exception e) {
-            System.out.println("error:" + e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -586,7 +604,7 @@ public class ProyectoController {
             this.proyectoService.habilitarBitacora(idProyecto, usuarioDto);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
-            System.out.println("error:" + e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -598,7 +616,7 @@ public class ProyectoController {
             this.proyectoService.finalizarBitacora(idProyecto, finiquitoContraparte);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
-            System.out.println("error:" + e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -609,6 +627,7 @@ public class ProyectoController {
             this.proyectoService.aprobarBitacora(idProyecto);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -619,18 +638,19 @@ public class ProyectoController {
             this.proyectoService.rechazarBitacora(idProyecto);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
     @PostMapping("/{idProyecto}/cargar-informe-final")
     public ResponseEntity cargarInformeFinal(@PathVariable Integer idProyecto,
-            @ModelAttribute MultipartFile cartaAsesor,@ModelAttribute MultipartFile informeFinal) {
+            @ModelAttribute MultipartFile cartaAsesor, @ModelAttribute MultipartFile informeFinal) {
         try {
-            this.proyectoService.cargarInformeFinal(idProyecto,cartaAsesor, informeFinal);
+            this.proyectoService.cargarInformeFinal(idProyecto, cartaAsesor, informeFinal);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
-            System.out.println("error:" + e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -642,6 +662,7 @@ public class ProyectoController {
             BitacoraDto bitacora = new BitacoraDto(this.proyectoService.crearBitacora(idProyecto, bitacoraDto));
             return ResponseEntity.ok(bitacora);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -653,6 +674,7 @@ public class ProyectoController {
             ProrrogaDto prorroga = new ProrrogaDto(this.prorrogaService.crearProrroga(idProyecto, prorrogaDto));
             return ResponseEntity.ok(prorroga);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -663,10 +685,10 @@ public class ProyectoController {
             @ModelAttribute MultipartFile traduccionArticulo,
             @ModelAttribute MultipartFile constanciaLinguistica) {
         try {
-            this.proyectoService.cargarArticulo(idProyecto, articulo, traduccionArticulo,constanciaLinguistica);
+            this.proyectoService.cargarArticulo(idProyecto, articulo, traduccionArticulo, constanciaLinguistica);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
-            System.out.println("error:" + e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -682,7 +704,6 @@ public class ProyectoController {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }*/
-
     @PostMapping("/{idProyecto}/cargar-dictamen-revision")
     public ResponseEntity cargarDictamenRevision(@PathVariable Integer idProyecto,
             @ModelAttribute MultipartFile dictamenRevision,
@@ -691,7 +712,7 @@ public class ProyectoController {
             this.proyectoService.cargarDictamenRevsion(idProyecto, dictamenRevision, cartaRevision);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
-            System.out.println("error:" + e.getMessage());
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }

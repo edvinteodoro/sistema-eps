@@ -2,6 +2,8 @@ package gt.edu.cunoc.sistemaeps.controller;
 
 import gt.edu.cunoc.sistemaeps.dto.ActaDto;
 import gt.edu.cunoc.sistemaeps.service.ActaService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -20,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/actas")
 public class ActaController {
-
+    private static final Logger logger = LoggerFactory.getLogger(ActaController.class);
     private final ActaService actaService;
 
     public ActaController(ActaService actaService) {
@@ -39,7 +41,7 @@ public class ActaController {
                     .map(ActaDto::new);
             return ResponseEntity.ok(actas);
         } catch (Exception e) {
-            System.out.println("error: " + e);
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -50,6 +52,7 @@ public class ActaController {
             ActaDto acta = new ActaDto(this.actaService.getActa(idActa));
             return ResponseEntity.ok(acta);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }

@@ -5,6 +5,8 @@
 package gt.edu.cunoc.sistemaeps.controller;
 
 import gt.edu.cunoc.sistemaeps.service.ElementoService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PutMapping;
@@ -18,7 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 @RestController
 @RequestMapping("/api/elementos")
 public class ElementoController {
-
+    
+    private static final Logger logger = LoggerFactory.getLogger(ActaController.class);
     private final ElementoService elementoService;
 
     public ElementoController(ElementoService elementoService) {
@@ -31,6 +34,7 @@ public class ElementoController {
             this.elementoService.desactivarElementoProyectoActivo(idElementoProyecto);
             return ResponseEntity.ok(null);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }

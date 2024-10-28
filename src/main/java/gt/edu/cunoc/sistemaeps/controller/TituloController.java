@@ -8,6 +8,8 @@ import gt.edu.cunoc.sistemaeps.dto.TituloDto;
 import gt.edu.cunoc.sistemaeps.service.TituloService;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -22,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/titulos")
 public class TituloController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ActaController.class);
     private final TituloService tituloService;
 
     public TituloController(TituloService tituloService) {
@@ -35,16 +38,18 @@ public class TituloController {
                     .map(TituloDto::new).collect(Collectors.toList());
             return ResponseEntity.ok(titulos);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
-    
+
     @GetMapping("/{idTitulo}")
     public ResponseEntity getTitulo(@PathVariable Integer idTitulo) {
         try {
             TituloDto titulo = new TituloDto(this.tituloService.getTitulo(idTitulo));
             return ResponseEntity.ok(titulo);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }

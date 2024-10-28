@@ -8,6 +8,8 @@ import gt.edu.cunoc.sistemaeps.service.UsuarioService;
 import java.security.Principal;
 import java.util.List;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -30,6 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/usuarios")
 public class UsuarioController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ActaController.class);
     private final UsuarioService usuarioService;
     private final CarreraService carreraService;
     private final UsuarioProyectoService usuarioProyectoService;
@@ -52,10 +55,11 @@ public class UsuarioController {
             pageable = PageRequest.of(pageable.getPageNumber(),
                     pageable.getPageSize(),
                     Sort.by(Sort.Direction.DESC, "idUsuario"));
-            Page<UsuarioDto> usuarios = this.usuarioService.getAll(nombre, registroAcademico, colegiado,dpi, idRol, pageable)
+            Page<UsuarioDto> usuarios = this.usuarioService.getAll(nombre, registroAcademico, colegiado, dpi, idRol, pageable)
                     .map(UsuarioDto::new);
             return ResponseEntity.ok(usuarios);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -66,10 +70,11 @@ public class UsuarioController {
             UsuarioDto usuario = new UsuarioDto(this.usuarioService.getUsuario(idUsuario));
             return ResponseEntity.ok(usuario);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
-    
+
     @PutMapping("/{idUsuario}")
     public ResponseEntity actualizarUsuario(@PathVariable Integer idUsuario,
             @RequestBody UsuarioDto usuarioDto) {
@@ -77,26 +82,29 @@ public class UsuarioController {
             UsuarioDto usuario = new UsuarioDto(this.usuarioService.actualizarUsuario(idUsuario, usuarioDto));
             return ResponseEntity.ok(usuario);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
-    
+
     @PostMapping("/{idUsuario}/reset-password")
     public ResponseEntity resetPassword(@PathVariable Integer idUsuario) {
         try {
-            UsuarioDto usuario = new UsuarioDto(this.usuarioService.resetPassword(idUsuario)); 
+            UsuarioDto usuario = new UsuarioDto(this.usuarioService.resetPassword(idUsuario));
             return ResponseEntity.ok(usuario);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
-    
+
     @PostMapping("/{idUsuario}/desactivar")
     public ResponseEntity desactivarUsuario(@PathVariable Integer idUsuario) {
         try {
-            UsuarioDto usuario = new UsuarioDto(this.usuarioService.desactivarUsuario(idUsuario)); 
+            UsuarioDto usuario = new UsuarioDto(this.usuarioService.desactivarUsuario(idUsuario));
             return ResponseEntity.ok(usuario);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -107,7 +115,7 @@ public class UsuarioController {
             UsuarioDto usuario = new UsuarioDto(this.usuarioService.crearUsuario(usuarioDto));
             return ResponseEntity.ok(usuario);
         } catch (Exception e) {
-            System.out.println("error: " + e);
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -119,6 +127,7 @@ public class UsuarioController {
             UsuarioDto usuario = new UsuarioDto(this.usuarioProyectoService.getCoordinadorEpsDisponible());
             return ResponseEntity.ok(usuario);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -130,7 +139,8 @@ public class UsuarioController {
                     .map(carreraUsuario -> new CarreraDto(carreraUsuario.getIdCarreraFk())).collect(Collectors.toList());
             return ResponseEntity.ok(carreras);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
-    } 
+    }
 }

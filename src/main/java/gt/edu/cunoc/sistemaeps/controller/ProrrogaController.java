@@ -2,6 +2,8 @@ package gt.edu.cunoc.sistemaeps.controller;
 
 import gt.edu.cunoc.sistemaeps.dto.ProrrogaDto;
 import gt.edu.cunoc.sistemaeps.service.ProrrogaService;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -10,7 +12,6 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -24,6 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/prorrogas")
 public class ProrrogaController {
 
+    private static final Logger logger = LoggerFactory.getLogger(ActaController.class);
     private final ProrrogaService prorrogaService;
 
     public ProrrogaController(ProrrogaService prorrogaService) {
@@ -40,6 +42,7 @@ public class ProrrogaController {
                     .map(ProrrogaDto::new);
             return ResponseEntity.ok(prorrogas);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -50,6 +53,7 @@ public class ProrrogaController {
             ProrrogaDto prorroga = new ProrrogaDto(this.prorrogaService.getProrroga(idProrroga));
             return ResponseEntity.ok(prorroga);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -61,6 +65,7 @@ public class ProrrogaController {
             ProrrogaDto prorroga = new ProrrogaDto(this.prorrogaService.actualizarProrroga(idProrroga, prorrogaDto));
             return ResponseEntity.ok(prorroga);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
@@ -72,6 +77,7 @@ public class ProrrogaController {
             ProrrogaDto prorroga = new ProrrogaDto(this.prorrogaService.responderProrroga(idProrroga, prorrogaDto));
             return ResponseEntity.ok(prorroga);
         } catch (Exception e) {
+            logger.error(e.getMessage());
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
