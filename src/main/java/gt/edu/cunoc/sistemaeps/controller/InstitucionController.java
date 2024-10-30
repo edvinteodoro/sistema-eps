@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/instituciones")
 public class InstitucionController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ActaController.class);
+    private static final Logger logger = LoggerFactory.getLogger(InstitucionController.class);
     private final InstitucionService institucionService;
 
     public InstitucionController(InstitucionService institucionService) {

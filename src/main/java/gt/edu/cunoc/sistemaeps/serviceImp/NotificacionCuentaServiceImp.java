@@ -12,30 +12,30 @@ import org.springframework.stereotype.Service;
  * @author edvin
  */
 @Service
-public class NotificacionCuentaServiceImp implements NotificacionCuentaService{
+public class NotificacionCuentaServiceImp implements NotificacionCuentaService {
 
-    @Value("${spring.profiles.active}")
-    private String activeProfile;
-    
+    private final String activeProfile;
     private final EmailService emailService;
-    
-    public NotificacionCuentaServiceImp(EmailService emailService){
+
+    public NotificacionCuentaServiceImp(@Value("${spring.profiles.active}") String activeProfile,
+             EmailService emailService) {
+        this.activeProfile = activeProfile;
         this.emailService = emailService;
     }
-    
+
     @Async
     @Override
     public void notificarTokenUsuario(Usuario usuario, String link) {
         String to = getEmailRecipient(usuario);
         this.emailService.sendConfirmationEmail(to, link);
     }
-    
+
     private String getEmailRecipient(Usuario usuario) {
-        if ("DEV".equals(activeProfile)) {
-            return "edvinteodoro-gonzalezrafael@cunoc.edu.gt"; // Use predefined test email
+        if ("prod".equals(activeProfile)) {
+            return usuario.getCorreo(); // Use predefined test email
         } else {
-            return usuario.getCorreo(); // Use real email for other profiles
+            return "edvinteodoro-gonzalezrafael@cunoc.edu.gt"; // Use real email for other profiles
         }
     }
-    
+
 }

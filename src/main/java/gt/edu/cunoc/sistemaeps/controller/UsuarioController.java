@@ -32,7 +32,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/usuarios")
 public class UsuarioController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ActaController.class);
+    private static final Logger logger = LoggerFactory.getLogger(UsuarioController.class);
     private final UsuarioService usuarioService;
     private final CarreraService carreraService;
     private final UsuarioProyectoService usuarioProyectoService;

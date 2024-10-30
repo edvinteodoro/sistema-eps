@@ -24,7 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/titulos")
 public class TituloController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ActaController.class);
+    private static final Logger logger = LoggerFactory.getLogger(TituloController.class);
     private final TituloService tituloService;
 
     public TituloController(TituloService tituloService) {

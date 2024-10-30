@@ -18,7 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("api/descargas")
 public class DescargasController {
     
-    private static final Logger logger = LoggerFactory.getLogger(ActaController.class);
+    private static final Logger logger = LoggerFactory.getLogger(DescargasController.class);
     private final StorageService storageService;
 
     public DescargasController(StorageService storageService) {

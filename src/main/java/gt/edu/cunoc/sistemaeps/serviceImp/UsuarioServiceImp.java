@@ -223,6 +223,9 @@ public class UsuarioServiceImp implements UsuarioService {
     public void activarUsuario(TokenConfirmacionDto tokenConfirmacionDto) throws Exception {
         TokenConfirmacion tokenConfirmacion = this.tokenConfirmacionService
                 .getTokenConfiramcion(tokenConfirmacionDto.getToken());
+        if (tokenConfirmacion==null){
+            throw new Exception("No se pudo encontrar los datos del usuario");
+        }
         Usuario usuario = tokenConfirmacion.getIdUsuarioFk();
         if (!validarUsuario(new UsuarioDto(usuario))) {
             throw new Exception("No se puede activar usuario, debido que ya existe un usuario activo en el mismo rol");

@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/elementos")
 public class ElementoController {
     
-    private static final Logger logger = LoggerFactory.getLogger(ActaController.class);
+    private static final Logger logger = LoggerFactory.getLogger(ElementoController.class);
     private final ElementoService elementoService;
 
     public ElementoController(ElementoService elementoService) {

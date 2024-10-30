@@ -33,7 +33,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/bitacoras")
 public class BitacoraController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ActaController.class);
+    private static final Logger logger = LoggerFactory.getLogger(BitacoraController.class);
     private final BitacoraService bitacoraService;
     private final ComentarioBitacoraService comentarioBitacoraService;
 

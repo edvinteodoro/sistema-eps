@@ -22,7 +22,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/municipios")
 public class MunicipioController {
     
-    private static final Logger logger = LoggerFactory.getLogger(ActaController.class);
+    private static final Logger logger = LoggerFactory.getLogger(MunicipioController.class);
     private final DepartamentoService departamentoService;
 
     public MunicipioController(DepartamentoService departamentoService) {

@@ -26,7 +26,7 @@
                 <databaseUrl>jdbc:mysql://localhost:3306/datos_eps</databaseUrl>
                 <databaseUser>root</databaseUser>
                 <databasePass>Root.3161</databasePass>
-                <environment>DEV</environment>
+                <environment>dev</environment>
                 <portNumber>8080</portNumber>
                 <mailUserName>edvinteodoro2@gmail.com</mailUserName>
                 <mailPassword>ckbnswmgecnccmsr</mailPassword>
@@ -35,6 +35,7 @@
                 <minioAccessKey>9FLmDFiFYXC5lxkJuKDa</minioAccessKey>
                 <minioSecretKey>26qAnCz0SQlLYSvUCIEhWPYNhm7SoZbhu44qIdph</minioSecretKey>
                 <jwtSecret>secret1111111111111111111111111111111122secret1111111111111111111111111111111122</jwtSecret>
+                <linkActivacion>http://localhost/auth/confirm?token=</linkActivacion>
                 <logLocation>/opt/apps/logs/sistema-eps.log</logLocation>
             </properties>
         </profile>
@@ -42,17 +43,18 @@
             <id>prod</id>
             <properties>
                 <databaseUrl>jdbc:mysql://localhost:3306/datos_eps</databaseUrl>
-                <databaseUser>root</databaseUser>
-                <databasePass>Root.3161</databasePass>
-                <environment>PROD</environment>
+                <databaseUser>dbUser</databaseUser>
+                <databasePass>dbPass</databasePass>
+                <environment>prod</environment>
                 <portNumber>8080</portNumber>
                 <mailUserName>email</mailUserName>
                 <mailPassword>password</mailPassword>
                 <minioUrl>http://localhost:9000</minioUrl>
                 <minioBucket>proyecto-eps-bucket</minioBucket>
-                <minioAccessKey>cxRnG6YQ1tRZ3V1y</minioAccessKey>
-                <minioSecretKey>bU7t1L8KkQRDy5Scuq8lTqWgnPZNYu7a</minioSecretKey>
-                <jwtSecret>secret1111111111111111111111111111111122secret1111111111111111111111111111111122</jwtSecret>
+                <minioAccessKey>accessKey</minioAccessKey>
+                <minioSecretKey>secretKey</minioSecretKey>
+                <jwtSecret>SECRET</jwtSecret>
+                <linkActivacion>http://serverIP/auth/confirm?token=</linkActivacion>
                 <logLocation>/opt/apps/logs/sistema-eps.log</logLocation>
             </properties>
         </profile>

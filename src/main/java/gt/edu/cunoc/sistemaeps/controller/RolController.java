@@ -20,7 +20,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/roles")
 public class RolController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ActaController.class);
+    private static final Logger logger = LoggerFactory.getLogger(RolController.class);
     private final RolService rolService;
 
     public RolController(RolService rolService) {

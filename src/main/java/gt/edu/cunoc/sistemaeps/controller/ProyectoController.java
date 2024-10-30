@@ -44,7 +44,7 @@ import org.springframework.web.multipart.MultipartFile;
 @RequestMapping("/api/proyectos")
 public class ProyectoController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ActaController.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProyectoController.class);
     private final ProyectoService proyectoService;
     private final ProrrogaService prorrogaService;
     private final ElementoService elementoService;

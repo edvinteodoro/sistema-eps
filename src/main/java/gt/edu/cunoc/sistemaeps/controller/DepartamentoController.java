@@ -21,7 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/departamentos")
 public class DepartamentoController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ActaController.class);
+    private static final Logger logger = LoggerFactory.getLogger(DepartamentoController.class);
     private final DepartamentoService departamentoService;
 
     public DepartamentoController(DepartamentoService departamentoService) {

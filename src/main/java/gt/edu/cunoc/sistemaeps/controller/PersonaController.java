@@ -23,7 +23,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/personas")
 public class PersonaController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ActaController.class);
+    private static final Logger logger = LoggerFactory.getLogger(PersonaController.class);
     private final PersonaService personaService;
 
     public PersonaController(PersonaService personaService) {

@@ -25,7 +25,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/prorrogas")
 public class ProrrogaController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ActaController.class);
+    private static final Logger logger = LoggerFactory.getLogger(ProrrogaController.class);
     private final ProrrogaService prorrogaService;
 
     public ProrrogaController(ProrrogaService prorrogaService) {

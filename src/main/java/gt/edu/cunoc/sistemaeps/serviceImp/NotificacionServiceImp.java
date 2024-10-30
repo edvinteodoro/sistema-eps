@@ -1,5 +1,6 @@
 package gt.edu.cunoc.sistemaeps.serviceImp;
 
+import gt.edu.cunoc.sistemaeps.controller.UsuarioController;
 import gt.edu.cunoc.sistemaeps.dto.ComentarioDto;
 import gt.edu.cunoc.sistemaeps.entity.Convocatoria;
 import gt.edu.cunoc.sistemaeps.entity.EtapaProyecto;
@@ -11,6 +12,8 @@ import gt.edu.cunoc.sistemaeps.service.EmailService;
 import gt.edu.cunoc.sistemaeps.service.NotificacionService;
 import gt.edu.cunoc.sistemaeps.util.DateUtils;
 import gt.edu.cunoc.sistemaeps.util.ElementoUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
@@ -22,8 +25,8 @@ import org.springframework.stereotype.Service;
 @Service
 public class NotificacionServiceImp implements NotificacionService {
 
-    @Value("${spring.profiles.active}")
-    private String activeProfile;
+    private static final Logger logger = LoggerFactory.getLogger(UsuarioController.class);
+    private final String activeProfile;
 
     private static final String ASIGNACION_MSG = "Se le ha asignado al proyecto, bajo el rol de %s.";
     private static final String SOLICITUD_REVISION_MSG = "Se le ha solicitado realizar la revisión del proyecto.";
@@ -58,8 +61,10 @@ public class NotificacionServiceImp implements NotificacionService {
     private final EmailService emailService;
     private final ElementoService elementoService;
 
-    public NotificacionServiceImp(EmailService emailService,
+    public NotificacionServiceImp(@Value("${spring.profiles.active}") String activeProfile,
+            EmailService emailService,
             ElementoService elementoService) {
+        this.activeProfile = activeProfile;
         this.emailService = emailService;
         this.elementoService = elementoService;
     }
@@ -202,10 +207,11 @@ public class NotificacionServiceImp implements NotificacionService {
     }
 
     private String getEmailRecipient(Usuario usuario) {
-        if ("DEV".equals(activeProfile)) {
-            return "edvinteodoro-gonzalezrafael@cunoc.edu.gt"; // Use predefined test email
+        logger.info("---- env:"+activeProfile);
+        if ("prod".equals(activeProfile)) {
+            return usuario.getCorreo(); // Use predefined test email
         } else {
-            return usuario.getCorreo(); // Use real email for other profiles
+            return "edvinteodoro-gonzalezrafael@cunoc.edu.gt"; // Use real email for other profiles
         }
     }
 

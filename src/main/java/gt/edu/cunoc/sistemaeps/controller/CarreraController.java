@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RestController;
 @RequestMapping("/api/carreras")
 public class CarreraController {
 
-    private static final Logger logger = LoggerFactory.getLogger(ActaController.class);
+    private static final Logger logger = LoggerFactory.getLogger(CarreraController.class);
     private final CarreraService carreraService;
 
     public CarreraController(CarreraService carreraService) {
