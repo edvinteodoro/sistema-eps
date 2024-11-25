@@ -1,6 +1,7 @@
 package gt.edu.cunoc.sistemaeps.serviceImp;
 
 import gt.edu.cunoc.sistemaeps.dto.ProrrogaDto;
+import gt.edu.cunoc.sistemaeps.entity.Carrera;
 import gt.edu.cunoc.sistemaeps.entity.Prorroga;
 import gt.edu.cunoc.sistemaeps.entity.Proyecto;
 import gt.edu.cunoc.sistemaeps.entity.Rol;
@@ -64,9 +65,12 @@ public class ProrrogaServiceImp implements ProrrogaService {
             Specification<Prorroga> spec = ProrrogaSpecification.filterBy(filter);
             return prorrogaRepository.findAll(spec, pageable);
         } else {
-            filter.setIdUsuarioAsignado(usuario.getIdUsuario());
-            Specification<Prorroga> spec = ProrrogaSpecification.filterBy(filter);
-            return prorrogaRepository.findAll(spec, pageable);
+            Carrera carrera = usuario.getCarreraUsuarioList().get(0).getIdCarreraFk();
+            Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(carrera.getIdCarrera());
+            if (!usuario.equals(supervisor)) {
+                throw new Exception("El usuario no tiene permisos para visualizar las solicitudes de prorroga");
+            }
+            return this.prorrogaRepository.findProrroga(carrera.getIdCarrera(), pageable);
         }
     }
 

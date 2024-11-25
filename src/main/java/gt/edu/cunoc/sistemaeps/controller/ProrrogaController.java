@@ -40,6 +40,7 @@ public class ProrrogaController {
                     Sort.by(Sort.Direction.DESC, "idProrroga"));
             Page<ProrrogaDto> prorrogas = this.prorrogaService.getProrrogas(pageable)
                     .map(ProrrogaDto::new);
+            System.out.println("prorrogas: "+prorrogas);
             return ResponseEntity.ok(prorrogas);
         } catch (Exception e) {
             logger.error(e.getMessage());

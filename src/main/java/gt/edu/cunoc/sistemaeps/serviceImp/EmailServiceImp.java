@@ -33,14 +33,14 @@ public class EmailServiceImp implements EmailService {
     
     @Override
     //@Async
-    public void sendDocumentEmail(String to, String tituloDocumento,String tituloProyecto,String estudiante, String registro, String carrera, String fileUrl){
+    public void sendDocumentEmail(String to, String tituloDocumento,String tituloProyecto,String estudiante, String registro, String mensaje, String fileUrl){
         try {
             Context context = new Context();
             context.setVariable("titulo_documento", tituloDocumento);
             context.setVariable("titulo_proyecto", tituloProyecto);
             context.setVariable("nombre_estudiante", estudiante);
             context.setVariable("registro_academico", registro);
-            context.setVariable("carrera", carrera);
+            context.setVariable("mensaje", mensaje);
 
             MimeMessage mimeMessage = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(mimeMessage, true, "UTF-8");

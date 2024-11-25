@@ -16,4 +16,5 @@ public class BitacoraFilter {
     private Integer idUsuarioAsignado;
     private Integer idUsuario;
     private Integer idCarrera;
+    private Integer idProyecto;
 }

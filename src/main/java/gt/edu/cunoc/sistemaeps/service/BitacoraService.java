@@ -20,7 +20,7 @@ import org.springframework.web.multipart.MultipartFile;
  */
 public interface BitacoraService {
 
-    public Page<Bitacora> getBitacoras(String nombre, String registroAcademico,Pageable pageable) throws Exception;
+    public Page<Bitacora> getBitacoras(String nombre, String registroAcademico,Integer idProyecto,Pageable pageable) throws Exception;
 
     public Bitacora crearBitacora(Proyecto proyecto, BitacoraDto bitacoraDto) throws Exception;
 

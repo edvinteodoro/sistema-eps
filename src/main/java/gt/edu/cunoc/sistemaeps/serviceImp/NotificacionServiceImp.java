@@ -35,9 +35,9 @@ public class NotificacionServiceImp implements NotificacionService {
     private static final String CREACION_ACTA_MSG = "Se ha generado acta, puede descargarlo en la seccion de actas.";
 
     private static final String GENERACION_CONVOCATORIA_ANTEPROYECTO_MSG = "Se ha generado convocatoria de evaluacion de anteproyecto, debera firmarla y cargarla al sistema.";
-    private static final String CONVOCATORIA_ANTEPROYECTO_MSG = "Se ha definido la fecha y hora de evaluacion del anteproyecto. Dia: %s, hora: %s";
-    private static final String GENERACION_CONVOCATORIA_EXAMEN_GENERAL_MSG = "Se ha generado convocatoria de examen general de proyecto, debera firmarla y cargarla al sistema.";
-    private static final String CONVOCATORIA_EXAMEN_GENERAL_MSG = "Se ha definido la fecha y hora de evaluacion del proyecto. Dia: %s, hora: %s";
+    private static final String CONVOCATORIA_ANTEPROYECTO_MSG = "Se ha definido la fecha y hora de evaluacion del anteproyecto. Dia: %s, hora: %s, salon: %s";
+    private static final String GENERACION_CONVOCATORIA_EXAMEN_GENERAL_MSG = "Se ha generado convocatoria de examen general de proyecto, deberas firmarla y cargarla al sistema.";
+    private static final String CONVOCATORIA_EXAMEN_GENERAL_MSG = "Se ha definido la fecha y hora de evaluacion del proyecto. Dia: %s, hora: %s, salon: %s";
 
     private static final String ETAPA_NUEVA_MSG = "El proyecto ahora se encuentra en la etapa: %s, descripcion: %s";
 
@@ -127,8 +127,12 @@ public class NotificacionServiceImp implements NotificacionService {
     public void notificarConvocatoriaAnteproyecto(Usuario usuario, Proyecto proyecto, Convocatoria convocatoria, String urlFile) {
         String to = getEmailRecipient(usuario);
         String mensaje = String.format(CONVOCATORIA_ANTEPROYECTO_MSG, DateUtils.getFormatedDate(convocatoria.getFechaEvaluacion()),
-                DateUtils.getFormatedTime(convocatoria.getHoraEvaluacion().toLocalTime()));
-        this.sendDocumentoEmail(proyecto, to, EMAIL_SUBJECT_CONVOCATORIA_ANTEPROYECTO, mensaje, urlFile);
+                DateUtils.getFormatedTime(convocatoria.getHoraEvaluacion().toLocalTime()), convocatoria.getSalon());
+        if (urlFile != null) {
+            this.sendDocumentoEmail(proyecto, to, EMAIL_SUBJECT_CONVOCATORIA_ANTEPROYECTO, mensaje, urlFile);
+        } else {
+            this.sendNotificacionEmail(EMAIL_SUBJECT_CONVOCATORIA_ANTEPROYECTO, proyecto, to, mensaje);
+        }
     }
 
     @Async
@@ -136,8 +140,12 @@ public class NotificacionServiceImp implements NotificacionService {
     public void notificarConvocatoriaExamenGeneral(Usuario usuario, Proyecto proyecto, Convocatoria convocatoria, String urlFile) {
         String to = getEmailRecipient(usuario);
         String mensaje = String.format(CONVOCATORIA_EXAMEN_GENERAL_MSG, DateUtils.getFormatedDate(convocatoria.getFechaEvaluacion()),
-                DateUtils.getFormatedTime(convocatoria.getHoraEvaluacion().toLocalTime()));
-        this.sendDocumentoEmail(proyecto, to, EMAIL_SUBJECT_CONVOCATORIA_EXAMEN_GENERAL, mensaje, urlFile);
+                DateUtils.getFormatedTime(convocatoria.getHoraEvaluacion().toLocalTime()), convocatoria.getSalon());
+        if (urlFile != null) {
+            this.sendDocumentoEmail(proyecto, to, EMAIL_SUBJECT_CONVOCATORIA_EXAMEN_GENERAL, mensaje, urlFile);
+        } else {
+            this.sendNotificacionEmail(EMAIL_SUBJECT_CONVOCATORIA_EXAMEN_GENERAL, proyecto, to, mensaje);
+        }
     }
 
     @Async
@@ -207,7 +215,7 @@ public class NotificacionServiceImp implements NotificacionService {
     }
 
     private String getEmailRecipient(Usuario usuario) {
-        logger.info("---- env:"+activeProfile);
+        logger.info("---- env:" + activeProfile);
         if ("prod".equals(activeProfile)) {
             return usuario.getCorreo(); // Use predefined test email
         } else {

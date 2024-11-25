@@ -22,7 +22,8 @@ public class BitacoraSpecification {
     private static final String REGISTRO_ESTUDIANTE = "registroAcademico";
     private static final String ID_USUARIO = "idUsuario";
     private static final String ID_ROL = "idRol";
-     private static final String ID_CARRERA = "idCarrera";
+    private static final String ID_CARRERA = "idCarrera";
+    private static final String ID_PROYECTO = "idProyecto"; 
 
     public static Specification<Bitacora> filterBy(BitacoraFilter bitacoraFilter) {
         return Specification
@@ -30,7 +31,8 @@ public class BitacoraSpecification {
                 .and(hasRevisionContraparte(bitacoraFilter.getRevisionContraparte()))
                 .and(hasRegistroEstudiante(bitacoraFilter.getRegistroEstudiante()))
                 .and(hasIdUsuarioAsignado(bitacoraFilter.getIdUsuarioAsignado()))
-                .and(hasIdCarrera(bitacoraFilter.getIdCarrera()));
+                .and(hasIdCarrera(bitacoraFilter.getIdCarrera()))
+                .and(hasIdProyecto(bitacoraFilter.getIdProyecto()));
     }
 
     private static Specification<Bitacora> hasNombreEstudiante(String nombreEstudiante) {
@@ -83,6 +85,16 @@ public class BitacoraSpecification {
             Join<Bitacora, Proyecto> proyecto = root.join("idProyectoFk");
             Join<Proyecto, Carrera> carrera = proyecto.join("idCarreraFk");
             return cb.equal(carrera.get(ID_CARRERA), idCarrera); // Combine predicates with AND
+        });
+    }
+    
+    private static Specification<Bitacora> hasIdProyecto(Integer idProyecto) {
+        return ((root, query, cb) -> {
+            if (idProyecto==null) {
+                return cb.conjunction();
+            }
+            Join<Bitacora, Proyecto> proyecto = root.join("idProyectoFk");
+            return cb.equal(proyecto.get(ID_PROYECTO), idProyecto); // Combine predicates with AND
         });
     }
 }

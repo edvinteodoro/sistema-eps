@@ -86,10 +86,10 @@ public class ComentarioServiceImp implements ComentarioService {
             case RolUtils.ID_ROL_SUPERVISOR, RolUtils.ID_ROL_ASESOR, RolUtils.ID_ROL_CONTRAPARTE, RolUtils.ID_ROL_COORDINADOR_EPS, RolUtils.ID_ROL_COORDINADOR_CARRERA -> {
                 Integer idCarrera = proyecto.getIdCarreraFk().getIdCarrera();
                 UsuarioProyecto asesorProyecto = null;
-                UsuarioProyecto contraparteProyecto=null;
-                Usuario supervisor=null;
-                Usuario coordinadorEps=null;
-                Usuario coordinadorCarrera=null;
+                UsuarioProyecto contraparteProyecto = null;
+                Usuario supervisor = null;
+                Usuario coordinadorEps = null;
+                Usuario coordinadorCarrera = null;
                 try {
                     contraparteProyecto = this.usuarioProyectoService.getContraparteProyecto(idProyecto);
                 } catch (Exception e) {
@@ -114,7 +114,12 @@ public class ComentarioServiceImp implements ComentarioService {
                     rol = this.rolService.getRol(RolUtils.ID_ROL_CONTRAPARTE);
                 } else if (asesorProyecto != null && asesorProyecto.getIdUsuarioFk().equals(usuario)) {
                     rol = this.rolService.getRol(RolUtils.ID_ROL_ASESOR);
-                } else if (supervisor.equals(usuario) || coordinadorEps.equals(usuario) || coordinadorCarrera.equals(usuario)) {
+                } else if (coordinadorEps != null && coordinadorEps.equals(usuario)) {
+                    if (supervisor != null && !supervisor.equals(usuario)) {
+                        rol = this.rolService.getRol(RolUtils.ID_ROL_COORDINADOR_EPS);
+                    }
+                } else if ((supervisor != null && supervisor.equals(usuario))
+                        || (coordinadorCarrera != null && coordinadorCarrera.equals(usuario))) {
 
                 } else {
                     throw new Exception("No tiene permisos para agregar comentario");

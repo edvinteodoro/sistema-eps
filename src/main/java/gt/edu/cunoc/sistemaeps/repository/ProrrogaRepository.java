@@ -6,6 +6,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 /**
@@ -16,4 +17,8 @@ import org.springframework.stereotype.Repository;
 public interface ProrrogaRepository extends JpaRepository<Prorroga, Integer>, JpaSpecificationExecutor<Prorroga>{
     @Override
     public Page<Prorroga> findAll(Specification<Prorroga> spec, Pageable pageable);
+    
+    @Query("SELECT p FROM Prorroga p " +
+       "WHERE p.idProyectoFk.idCarreraFk.idCarrera = :idCarrera ")
+    public Page<Prorroga> findProrroga(Integer idCarrera, Pageable pageable);
 }

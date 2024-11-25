@@ -54,7 +54,7 @@
                 <minioAccessKey>accessKey</minioAccessKey>
                 <minioSecretKey>secretKey</minioSecretKey>
                 <jwtSecret>SECRET</jwtSecret>
-                <linkActivacion>http://serverIP/auth/confirm?token=</linkActivacion>
+                <linkActivacion>http://sistema-eps.westus.cloudapp.azure.com/auth/confirm?token=</linkActivacion>
                 <logLocation>/opt/apps/logs/sistema-eps.log</logLocation>
             </properties>
         </profile>

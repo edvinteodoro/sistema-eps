@@ -45,12 +45,13 @@ public class BitacoraController {
 
     @GetMapping
     public ResponseEntity getBitacoras(@RequestParam(required = false) String nombre,
-            @RequestParam(required = false) String registroAcademico, Pageable pageable) {
+            @RequestParam(required = false) String registroAcademico, 
+             @RequestParam(required = false) Integer idProyecto,Pageable pageable) {
         try {
             pageable = PageRequest.of(pageable.getPageNumber(),
                     pageable.getPageSize(),
                     Sort.by(Sort.Direction.DESC, "idBitacora"));
-            Page<BitacoraDto> bitacoras = this.bitacoraService.getBitacoras(nombre, registroAcademico, pageable)
+            Page<BitacoraDto> bitacoras = this.bitacoraService.getBitacoras(nombre, registroAcademico,idProyecto, pageable)
                     .map(BitacoraDto::new);
             return ResponseEntity.ok(bitacoras);
         } catch (Exception e) {

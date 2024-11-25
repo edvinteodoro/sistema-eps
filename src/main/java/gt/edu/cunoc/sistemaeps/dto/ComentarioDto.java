@@ -27,4 +27,8 @@ public class ComentarioDto {
         this.fecha=comentario.getFechaCreacion();
         this.rol = new RolDto(comentario.getIdRolFk());
     }
+    
+    public ComentarioDto(String comentario){
+        this.comentario = comentario;
+    }
 }

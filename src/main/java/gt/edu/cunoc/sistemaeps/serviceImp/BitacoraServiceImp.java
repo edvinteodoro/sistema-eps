@@ -75,12 +75,14 @@ public class BitacoraServiceImp implements BitacoraService {
     }
 
     @Override
-    public Page<Bitacora> getBitacoras(String nombre, String registroAcademico, Pageable pageable) throws Exception {
+    public Page<Bitacora> getBitacoras(String nombre, String registroAcademico,
+            Integer idProyecto, Pageable pageable) throws Exception {
         Usuario usuario = this.usuarioService.getLoggedUsuario();
         Rol rolUsuario = this.rolService.getLoggedUsuarioRol();
         BitacoraFilter filter = new BitacoraFilter();
         filter.setNombreEstudiante(nombre);
         filter.setRegistroEstudiante(registroAcademico);
+        filter.setIdProyecto(idProyecto);
         if (Objects.equals(rolUsuario.getIdRol(), RolUtils.ID_ROL_ESTUDIANTE)) {
             filter.setRegistroEstudiante(usuario.getRegistroAcademico());
             Specification<Bitacora> spec = BitacoraSpecification.filterBy(filter);

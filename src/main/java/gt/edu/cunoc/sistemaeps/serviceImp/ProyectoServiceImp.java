@@ -135,6 +135,11 @@ public class ProyectoServiceImp implements ProyectoService {
             return proyectoRepository.findAll(spec, pageable);
         } else if (Objects.equals(rolUsuario.getIdRol(), RolUtils.ID_ROL_SUPERVISOR)
                 || Objects.equals(rolUsuario.getIdRol(), RolUtils.ID_ROL_COORDINADOR_CARRERA)) {
+            if (usuario.getRolUsuarioList().size() > 1
+                    && usuario.getRolUsuarioList().get(1).getIdRolFk().equals(this.rolService.getRol(RolUtils.ID_ROL_COORDINADOR_EPS))) {
+                Specification<Proyecto> spec = ProyectoSpecification.filterBy(filter);
+                return proyectoRepository.findAll(spec, pageable);
+            }
             Carrera carrera = this.carreraService.getCarrerasUsuario(usuario.getIdUsuario()).get(0).getIdCarreraFk();
             return proyectoRepository.findProyectos(nombre, registroAcademico, usuario.getIdUsuario(), carrera.getIdCarrera(), Boolean.TRUE, pageable);
         } else {
@@ -504,6 +509,9 @@ public class ProyectoServiceImp implements ProyectoService {
                 } else {
                     etapa.setEditable(Boolean.TRUE);
                 }
+                if (actaDto.getComentario() != null && !actaDto.getComentario().isBlank()) {
+                    this.comentarioService.crearComentario(idProyecto, new ComentarioDto(actaDto.getComentario()));
+                }
                 return this.actaService.crearActaAnteproyecto(proyecto, actaDto);
             }
             case EtapaUtils.ID_ETAPA_EXAMEN_GENERAL -> {
@@ -517,6 +525,9 @@ public class ProyectoServiceImp implements ProyectoService {
                     this.proyectoRepository.save(proyecto);
                 } else {
                     etapa.setEditable(Boolean.TRUE);
+                }
+                if (actaDto.getComentario() != null && !actaDto.getComentario().isBlank()) {
+                    this.comentarioService.crearComentario(idProyecto, new ComentarioDto(actaDto.getComentario()));
                 }
                 this.etapaService.saveEtapaProyecto(etapa);
                 return this.actaService.crearActaExamenGeneral(proyecto, actaDto);
@@ -634,6 +645,7 @@ public class ProyectoServiceImp implements ProyectoService {
     public Usuario actualizarAsesor(Integer idProyecto, UsuarioDto usuarioDto) throws Exception {
         Proyecto proyecto = getProyecto(idProyecto);
         Usuario usuario = this.usuarioService.getLoggedUsuario();
+        Rol rol = this.rolService.getRol(RolUtils.ID_ROL_ASESOR);
         //Usuario coordinadorEps = this.usuarioProyectoService.getCoordinadorEpsDisponible();
         Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
         Usuario asesor = this.usuarioService.getUsuario(usuarioDto.getIdUsuario());
@@ -641,6 +653,7 @@ public class ProyectoServiceImp implements ProyectoService {
             throw new Exception("No tiene permisos para cambiar asesor");
         }
         UsuarioProyecto asesorProyecto = this.usuarioProyectoService.actualizarAsesorProyecto(proyecto, asesor);
+        this.notificacionService.notificarAsignacionUsuarioProyecto(asesor, rol, proyecto);
         return asesorProyecto.getIdUsuarioFk();
     }
 
@@ -648,6 +661,7 @@ public class ProyectoServiceImp implements ProyectoService {
     public Usuario actualizarContraparte(Integer idProyecto, UsuarioDto usuarioDto) throws Exception {
         Proyecto proyecto = getProyecto(idProyecto);
         Usuario usuario = this.usuarioService.getLoggedUsuario();
+        Rol rol = this.rolService.getRol(RolUtils.ID_ROL_CONTRAPARTE);
         //Usuario coordinadorEps = this.usuarioProyectoService.getCoordinadorEpsDisponible();
         Usuario supervisor = this.usuarioProyectoService.getSupervisorDisponible(proyecto.getIdCarreraFk().getIdCarrera());
         Usuario contraparte = this.usuarioService.getUsuario(usuarioDto.getIdUsuario());
@@ -655,6 +669,7 @@ public class ProyectoServiceImp implements ProyectoService {
             throw new Exception("No tiene permisos para cambiar contraparte");
         }
         UsuarioProyecto contraparteProyecto = this.usuarioProyectoService.actualizarContraparteProyecto(proyecto, contraparte);
+        this.notificacionService.notificarAsignacionUsuarioProyecto(contraparte, rol, proyecto);
         return contraparteProyecto.getIdUsuarioFk();
     }
 

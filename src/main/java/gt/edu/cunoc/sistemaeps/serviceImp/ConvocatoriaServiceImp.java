@@ -258,7 +258,7 @@ public class ConvocatoriaServiceImp implements ConvocatoriaService {
             this.notificacionService.notificarConvocatoriaAnteproyecto(supervisor, proyecto, getConvocatoriaAnteproyecto(proyecto), urlFile);
             this.notificacionService.notificarConvocatoriaAnteproyecto(coordinadorCarrera, proyecto, getConvocatoriaAnteproyecto(proyecto), urlFile);
             this.notificacionService.notificarConvocatoriaAnteproyecto(asesor, proyecto, getConvocatoriaAnteproyecto(proyecto), urlFile);
-            this.notificacionService.notificarConvocatoriaAnteproyecto(proyecto.getIdUsuarioFk(), proyecto, getConvocatoriaAnteproyecto(proyecto), urlFile);
+            this.notificacionService.notificarConvocatoriaAnteproyecto(proyecto.getIdUsuarioFk(), proyecto, getConvocatoriaAnteproyecto(proyecto), null);
         } catch (Exception e) {
         }
     }
@@ -277,7 +277,7 @@ public class ConvocatoriaServiceImp implements ConvocatoriaService {
         this.notificacionService.notificarConvocatoriaExamenGeneral(supervisor, proyecto, getConvocatoriaExamenGeneral(proyecto), urlFile);
         this.notificacionService.notificarConvocatoriaExamenGeneral(coordinadorCarrera, proyecto, getConvocatoriaExamenGeneral(proyecto), urlFile);
         this.notificacionService.notificarConvocatoriaExamenGeneral(asesor, proyecto, getConvocatoriaExamenGeneral(proyecto), urlFile);
-        this.notificacionService.notificarConvocatoriaExamenGeneral(proyecto.getIdUsuarioFk(), proyecto, getConvocatoriaExamenGeneral(proyecto), urlFile);
+        this.notificacionService.notificarConvocatoriaExamenGeneral(proyecto.getIdUsuarioFk(), proyecto, getConvocatoriaExamenGeneral(proyecto), null);
     }
 
     private String getCorrelativo(Correlativo correlativo) {
